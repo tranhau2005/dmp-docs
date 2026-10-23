@@ -17,7 +17,7 @@ This design covers the first implementation slice (the MVP) defined in Requireme
 
 ### Alignment with Workspace Conventions
 
-Per `AGENTS.md`, AO is a Python 3.12 / FastAPI (async) service under `services/agent-orchestrator/`, using SQLAlchemy 2.x typed models, Alembic migrations, Pydantic v2 schemas (separate from ORM), PostgreSQL 16, Redis, `uv`, `pytest` + `pytest-asyncio`, and `ruff`. It follows the strict `router -> service -> repository` layering with typed domain exceptions mapped by a single FastAPI exception handler. Kafka is explicitly out of MVP scope; the synchronous PostgreSQL + Redis path is used (Req 15.6, 15.7). AO is a *separate* control plane from the DriverManagementPlatform business domain and does not implement any driver/booking/payroll business rules.
+Per `docs/agent-guide.md`, AO is a Python 3.12 / FastAPI (async) service in the `dmp-agent-orchestrator` repository, using SQLAlchemy 2.x typed models, Alembic migrations, Pydantic v2 schemas (separate from ORM), PostgreSQL 16, Redis, `uv`, `pytest` + `pytest-asyncio`, and `ruff`. It follows the strict `router -> service -> repository` layering with typed domain exceptions mapped by a single FastAPI exception handler. Kafka is explicitly out of MVP scope; the synchronous PostgreSQL + Redis path is used (Req 15.6, 15.7). AO is a *separate* control plane from the DriverManagementPlatform business domain and does not implement any driver/booking/payroll business rules.
 
 ### MVP Boundary (Req 16.6)
 
@@ -451,7 +451,7 @@ These properties cover AO's pure orchestration logic (graph validation, state ma
 
 ## Error Handling
 
-AO uses a typed domain-exception hierarchy raised in the service layer and mapped to machine-readable responses by a single FastAPI exception handler (per `AGENTS.md`). Services never raise `HTTPException` directly.
+AO uses a typed domain-exception hierarchy raised in the service layer and mapped to machine-readable responses by a single FastAPI exception handler (per `docs/agent-guide.md` §5). Services never raise `HTTPException` directly.
 
 ### Failure Taxonomy (Req 9.7)
 
@@ -495,7 +495,7 @@ class UncertainTransition(AOError): ...          # transition/audit atomicity in
 
 ## Testing Strategy
 
-The MVP test suite covers the scenarios required by Req 16.5: happy paths, graph validation, state transitions, Context Hash immutability, Worktree isolation, Adapter failure, cancellation/timeout, Validation Gate failure, Approval Gate denial, redaction, restart recovery, and duplicate claim handling. Testing uses `pytest` + `pytest-asyncio` with `ruff` as the workspace standard. Fixtures use fake repository identities and credentials, and all test output is redacted of secrets/PII (per the Implementation Guidance and `AGENTS.md`).
+The MVP test suite covers the scenarios required by Req 16.5: happy paths, graph validation, state transitions, Context Hash immutability, Worktree isolation, Adapter failure, cancellation/timeout, Validation Gate failure, Approval Gate denial, redaction, restart recovery, and duplicate claim handling. Testing uses `pytest` + `pytest-asyncio` with `ruff` as the workspace standard. Fixtures use fake repository identities and credentials, and all test output is redacted of secrets/PII (per the Implementation Guidance and `docs/agent-guide.md`).
 
 ### Dual Approach
 

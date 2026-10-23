@@ -2,10 +2,10 @@
 
 ## Overview
 
-The MVP is a single deployable backend (`services/api`) — a FastAPI modular monolith backed by
-PostgreSQL 16 — plus a React admin web app (`apps/web`). All business writes go through the API
+The MVP is a single deployable backend (`dmp-api`) — a FastAPI modular monolith backed by
+PostgreSQL 16 — plus a React admin web app (`dmp-web`). All business writes go through the API
 synchronously; there is no Kafka, outbox, or analytics pipeline in the MVP. The design implements
-the authoritative schema in `docs/schema.dbml` and the conventions in `AGENTS.md`.
+the authoritative schema in `docs/schema.dbml` and the conventions in `docs/agent-guide.md`.
 
 This design satisfies `requirements.md`. Where a table belongs to a `[NEEDS-OWNER]` domain
 (bookings, leave, scheduling/timekeeping, payroll), the MVP creates storage + migrations only;
@@ -14,10 +14,10 @@ lifecycle logic is stubbed with `NotImplementedError` and a `# NEEDS-OWNER:` com
 ## Architecture
 
 ```
-apps/web (React+Vite+TS, Admin)
+dmp-web (React+Vite+TS, Admin)
         │  HTTPS / REST (JSON)
         ▼
-services/api  (FastAPI modular monolith)
+dmp-api  (FastAPI modular monolith)
   app/main.py            app factory, exception handler, router registration
   app/core/              config (DATABASE_URL from env), db session, security (JWT, hashing)
   app/domains/<name>/    router → service → repository → models/schemas

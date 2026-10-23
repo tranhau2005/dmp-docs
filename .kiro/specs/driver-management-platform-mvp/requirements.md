@@ -5,9 +5,9 @@
 This spec defines the **Driver Management Platform MVP (M1–M5)**: the **authoritative MVP** for the Driver Management Platform — a synchronous
 FastAPI + PostgreSQL modular monolith plus a React admin web app that implement the authoritative
 data model in `docs/schema.dbml`. The MVP is delivered as five independently shippable slices
-(M1–M5 from `AGENTS.md` Section 7). Work stops after M5 for human review.
+(M1–M5 from `docs/agent-guide.md` §7). Work stops after M5 for human review.
 
-This document is authoritative together with `docs/schema.dbml` and `AGENTS.md`. The existing
+This document is authoritative together with `docs/schema.dbml` and `docs/agent-guide.md`. The existing
 `.kiro/specs/driver-management-dashboard` spec is **not** authoritative for this platform and must
 not be used as a source of requirements.
 
@@ -31,7 +31,7 @@ In scope (MVP):
 
 ## Glossary
 
-- **API**: The FastAPI modular-monolith backend in `services/api`.
+- **API**: The FastAPI modular-monolith backend in the `dmp-api` repository.
 - **Account**: A login identity in `accounts` with a role (ADMIN/DRIVER/CUSTOMER) and status.
 - **Driver**: A workforce record in `drivers` with profile, licenses, and employment history.
 - **Employment History**: Time-bounded status records for a driver in `employment_history`.
@@ -50,7 +50,7 @@ In scope (MVP):
 #### Acceptance Criteria
 1. WHEN `docker compose up -d db` is run, THE system SHALL start PostgreSQL 16 reachable on localhost:5432.
 2. WHEN the API receives `GET /health`, THE API SHALL respond with HTTP 200 and body `{"status":"ok"}`.
-3. WHEN `uv run pytest` is run from `services/api`, THE suite SHALL execute at least one test and pass.
+3. WHEN `uv run pytest` is run from the `dmp-api` repository root, THE suite SHALL execute at least one test and pass.
 4. THE API SHALL read `DATABASE_URL` from the environment and SHALL NOT hardcode credentials.
 
 ### Requirement 2: Database schema and migrations (M2)

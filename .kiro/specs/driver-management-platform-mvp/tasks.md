@@ -8,13 +8,13 @@ Build the MVP in order (M1 → M5). Each slice is independently shippable and te
 
 ### M1 — Project scaffold + health check
 
-- [ ] 1.1 Create `services/api` package: `pyproject.toml` (uv), `alembic.ini`, `alembic/versions/`, `app/main.py` app factory.
+- [ ] 1.1 Create the `dmp-api` package (repository root): `pyproject.toml` (uv), `alembic.ini`, `alembic/versions/`, `app/main.py` app factory.
   - _Requirements: 1.2, 1.4, 6.1_
 - [ ] 1.2 Add `app/core/config.py` reading `DATABASE_URL` from env (no hardcoded secrets); `app/core/db.py` async session.
   - _Requirements: 1.4, 6.4_
 - [ ] 1.3 Implement `GET /health` returning `{"status":"ok"}` and register a single exception handler in `app/core/errors.py`.
   - _Requirements: 1.2, 6.3_
-- [ ] 1.4 Add `infra/compose/docker-compose.yml` (or root `docker-compose.yml`) with PostgreSQL 16 on localhost:5432.
+- [ ] 1.4 Add `dmp-infra/docker-compose.yml` with PostgreSQL 16 on localhost:5432.
   - _Requirements: 1.1_
 - [ ] 1.5 Add at least one passing test and wire `uv run pytest` + `ruff`.
   - _Requirements: 1.3, 6.6_

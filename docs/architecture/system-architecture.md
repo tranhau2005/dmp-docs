@@ -25,11 +25,11 @@ Initial topics can follow the business domains: `driver.events.v1`, `leave.event
 
 ## Implementation boundaries
 
-- `apps/web`, `apps/mobile`: client applications.
-- `services/api`: FastAPI, business domains, and outbox writes.
-- `services/event-consumer`: the Outbox Publisher and Event Consumer, which can run as separate processes when implemented.
-- `services/data-processing`: Spark/PySpark jobs.
-- `data/schemas`: event contracts; `data/pipelines`: Bronze, Silver, and Gold pipeline definitions.
-- `infra/`: PostgreSQL, Kafka, MinIO, Trino, and Superset.
+- `dmp-web`, `dmp-mobile`: client applications.
+- `dmp-api`: FastAPI, business domains, and outbox writes.
+- `dmp-event-consumer`: the Outbox Publisher and Event Consumer, which can run as separate processes when implemented.
+- `dmp-data-processing`: Spark/PySpark jobs.
+- `dmp-docs` `data/schemas`: event contracts; `dmp-docs` `data/pipelines`: Bronze, Silver, and Gold pipeline definitions.
+- `dmp-infra`: PostgreSQL, Kafka, MinIO, Trino, and Superset.
 
 Trino is included so Superset can query Gold data in MinIO through SQL. The Gold table format and Trino catalog configuration must be decided when the pipeline is implemented.

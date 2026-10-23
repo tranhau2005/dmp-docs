@@ -2,18 +2,18 @@
 
 ## Overview
 
-This plan implements the MVP slice (Requirement 16) of the Agent Orchestrator: a Python 3.12 / FastAPI async control-plane service under `services/agent-orchestrator/`, with PostgreSQL 16 durable state, Redis queue/locks, Git worktree isolation on remote SSH hosts, sequential execution, mandatory validation and approval gates, audit records, and two working Adapters (Kiro plus one of Claude/Codex) while keeping the Adapter Registry extensible to Agy/OpenCode.
+This plan implements the MVP slice (Requirement 16) of the Agent Orchestrator: a Python 3.12 / FastAPI async control-plane service in the `dmp-agent-orchestrator` repository, with PostgreSQL 16 durable state, Redis queue/locks, Git worktree isolation on remote SSH hosts, sequential execution, mandatory validation and approval gates, audit records, and two working Adapters (Kiro plus one of Claude/Codex) while keeping the Adapter Registry extensible to Agy/OpenCode.
 
 The build order is: project scaffold → core (config, DB, Redis, exceptions, enums, redaction) → ORM models + migration → Pydantic schemas → repositories → context packaging & hashing → graph validation & state machine → scheduler/claiming → worktree & SSH execution → adapter contract & registry (Kiro + Claude/Codex concrete, Agy/OpenCode stubs) → run lifecycle, events, structured results → validation gates → approval gates → artifacts/audit → routers & exception handler → observability/health → integration wiring. Each step builds on the previous and ends by wiring new components into the running application.
 
 Property-based tests (Hypothesis, min 100 examples each) implement the 25 correctness properties from the design and are placed next to the implementation they validate. Unit, edge-case, and integration/example tests cover the remaining Req 16.5 scenarios. All test sub-tasks are optional (`*`) and use fake repository identities/credentials with redacted output.
 
-Conventions (from `AGENTS.md`): strict `router -> service -> repository` layering, Pydantic v2 schemas separate from SQLAlchemy 2.x typed ORM models, typed domain exceptions mapped by a single FastAPI exception handler, Alembic migrations, `uv`, `pytest` + `pytest-asyncio`, `ruff`. `[NEEDS-OWNER]` items stay as typed config or `NotImplementedError` stubs with a `# NEEDS-OWNER:` marker — never invented.
+Conventions (from `docs/agent-guide.md`): strict `router -> service -> repository` layering, Pydantic v2 schemas separate from SQLAlchemy 2.x typed ORM models, typed domain exceptions mapped by a single FastAPI exception handler, Alembic migrations, `uv`, `pytest` + `pytest-asyncio`, `ruff`. `[NEEDS-OWNER]` items stay as typed config or `NotImplementedError` stubs with a `# NEEDS-OWNER:` marker — never invented.
 
 ## Tasks
 
 - [ ] 1. Project scaffold, dependencies, and settings
-  - Create `pyproject.toml` (uv) for `services/agent-orchestrator/` pinning Python 3.12, FastAPI, Uvicorn, SQLAlchemy 2.x, Alembic, Pydantic v2, psycopg, redis, Hypothesis, pytest, pytest-asyncio, ruff
+  - Create `pyproject.toml` (uv) for `dmp-agent-orchestrator` (repository root) pinning Python 3.12, FastAPI, Uvicorn, SQLAlchemy 2.x, Alembic, Pydantic v2, psycopg, redis, Hypothesis, pytest, pytest-asyncio, ruff
   - Add `app/main.py` FastAPI app factory and package `__init__.py` files across `app/core`, `app/routers`, `app/schemas`, `app/services`, `app/tools`, `app/workflows`, and `app/tests`
   - Add `ruff` config and a `pytest`/`pytest-asyncio` config (asyncio mode)
   - _Requirements: 16.1, 16.2_
@@ -292,7 +292,7 @@ Conventions (from `AGENTS.md`): strict `router -> service -> repository` layerin
     - _Requirements: 16.1, 1.2, 7.7, 14.4_
 
   - [ ]* 26.2 Write router tests (happy path, auth/permission, validation/error)
-    - Per `AGENTS.md` done-definition: at least one happy-path, one auth/permission, and one validation/error test per new endpoint group
+    - Per `docs/agent-guide.md` §8 done-definition: at least one happy-path, one auth/permission, and one validation/error test per new endpoint group
     - _Requirements: 16.1, NFR-4.3_
 
 - [ ] 27. Observability, health, and operator explanations

@@ -1,30 +1,31 @@
 # Structure Steering — Driver Management Platform
 
-> Sources: `AGENTS.md` §1, §3, §5; the actual directory tree surveyed in the repository.
+> Sources: `docs/agent-guide.md` §1, §3, §5; the actual directory trees surveyed in the dmp-* repositories.
 
 ## Current actual state
 
-The repo is a **scaffold** — most leaf directories contain only a `.gitkeep`. The only files with real content:
-`AGENTS.md`, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`,
+The platform is split into independently versioned repositories; most are **scaffolds** whose leaf directories
+contain only a `.gitkeep`. In this repository (dmp-docs) the files with real content are:
+`docs/agent-guide.md`, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`,
 `docs/architecture/system-architecture.md` (+ `.drawio`/`.png`),
-`services/agent-orchestrator/orchestrator.py` (+ README), `bootstrap-self-hosted.sh`,
-`README.md`, and the specs under `.kiro/specs/`.
+`README.md`, `AGENTS.md`, `CLAUDE.md`, and the specs under `.kiro/specs/`.
+The monorepo's local CLI dispatcher (`services/agent-orchestrator/orchestrator.py` + README) and
+`bootstrap-self-hosted.sh` were not carried into any dmp-* repository.
 Scaffold directories are **intent**, not implemented code.
 
-## Target monorepo layout (AGENTS.md §3)
+## Target multi-repo layout (docs/agent-guide.md §3, mapped to repositories)
 
 ```
-apps/web            # React + Vite + TS (Admin)
-apps/mobile         # React Native + TS (Driver) [later]
-packages/{ui, api-client, contracts}   # api-client generated from OpenAPI
-services/api        # FastAPI modular monolith (pyproject.toml, alembic.ini, alembic/versions, app/)
-services/{event-consumer, data-processing, agent-orchestrator}  # DEFERRED / out of MVP
-infra/{compose, docker, kafka, databases, monitoring}
-data/{schemas, pipelines, seeds, notebooks}
-docs/{schema.dbml, architecture, decisions(ADR), api, data}
+dmp-web                  # React + Vite + TS (Admin); packages/{ui, api-client} — api-client generated from OpenAPI
+dmp-mobile               # React Native + TS (Driver) [later]
+dmp-api                  # FastAPI modular monolith (repo root: pyproject.toml, alembic.ini, alembic/versions, app/)
+dmp-{event-consumer, data-processing, agent-orchestrator}  # DEFERRED / out of MVP
+dmp-infra                # docker-compose.yml, docker/, kafka/, databases/, monitoring/, scripts/
+dmp-docs                 # packages/contracts; data/{schemas, pipelines, seeds, notebooks};
+                         # docs/{schema.dbml, agent-guide.md, architecture, decisions(ADR), api, data}; .kiro/
 ```
 
-## `services/api/app` convention
+## `dmp-api` `app/` convention
 
 ```
 app/
@@ -47,7 +48,7 @@ Rules: routers never touch the DB directly; services never build HTTP responses;
 
 ## Reconciliation note
 
-The current scaffold uses `services/api/app/domains/{drivers,vehicles,assignments,auth}`, which diverges from §3.
+The current scaffold uses `dmp-api` `app/domains/{drivers,vehicles,assignments,auth}`, which diverges from §3.
 When implementing: use `accounts`/`auth`, add `licenses/bookings/leave/scheduling/payroll`;
 "assignments" actually belongs under `vehicles` (the `driver_vehicles` relationship).
 
@@ -60,6 +61,6 @@ When implementing: use `accounts`/`auth`, add `licenses/bookings/leave/schedulin
 ## Naming hazard
 
 "agent-orchestrator" is overloaded:
-(a) the local CLI dispatcher in `services/agent-orchestrator/orchestrator.py`;
-(b) the AO control-plane spec in `.kiro/specs/agent-orchestrator-multi-agent`.
+(a) the monorepo-era local CLI dispatcher `services/agent-orchestrator/orchestrator.py` (not carried into the multi-repo layout);
+(b) the AO control-plane spec in `.kiro/specs/agent-orchestrator-multi-agent`, implemented in `dmp-agent-orchestrator`.
 Keep the two concepts distinct; do not confuse ownership.
