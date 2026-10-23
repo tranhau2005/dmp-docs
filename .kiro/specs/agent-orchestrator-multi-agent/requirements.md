@@ -20,7 +20,7 @@ The feature includes:
 
 ### Non-Goals
 
-The feature does not define a universal agent CLI, provider-specific command syntax, a new Git hosting service, direct database access for workers, a Kafka-based event architecture, autonomous production deployment, a business-domain workflow for DriverManagementPlatform, or undocumented payroll, booking, leave, or authorization policies. The DriverManagementPlatform handoff and `AGENTS.md` provide architectural context only; the existing `driver-management-dashboard` spec is not authoritative for this feature.
+The feature does not define a universal agent CLI, provider-specific command syntax, a new Git hosting service, direct database access for workers, a Kafka-based event architecture, autonomous production deployment, a business-domain workflow for DriverManagementPlatform, or undocumented payroll, booking, leave, or authorization policies. The DriverManagementPlatform handoff and `docs/agent-guide.md` provide architectural context only; the existing `driver-management-dashboard` spec is not authoritative for this feature.
 
 ## Glossary
 

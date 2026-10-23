@@ -1,7 +1,7 @@
 # Product Steering — Driver Management Platform
 
-> Sources: `AGENTS.md`, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`.
-> This is the product-direction document. On conflict with older descriptions, this file + the DBML + AGENTS.md win.
+> Sources: `docs/agent-guide.md`, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`.
+> This is the product-direction document. On conflict with older descriptions, this file + the DBML + docs/agent-guide.md win.
 
 ## What the product is
 
@@ -28,7 +28,7 @@ Do not invent manager/dispatcher/team-leader roles — the ERD has none
 
 ## Scope discipline
 
-- **MVP = AGENTS.md Section 7 (M1–M5):** scaffold + health, schema + migrations, accounts + auth,
+- **MVP = docs/agent-guide.md §7 (M1–M5):** scaffold + health, schema + migrations, accounts + auth,
   drivers + licenses, vehicles + assignment. Build the synchronous path, then **stop for review**.
 - **Out of MVP:** Kafka, event-consumer, data-processing, analytics lakehouse (D-04 = No for now).
 - **`[NEEDS-OWNER]` — do NOT invent (stub + raise NotImplementedError):** booking lifecycle & fare,
@@ -38,7 +38,7 @@ Do not invent manager/dispatcher/team-leader roles — the ERD has none
 
 ## Source-of-truth hierarchy
 
-1. `docs/schema.dbml` + `AGENTS.md` — **authoritative** (data + conventions + MVP).
+1. `docs/schema.dbml` + `docs/agent-guide.md` — **authoritative** (data + conventions + MVP).
 2. `docs/architecture/system-architecture.md` — **target architecture / roadmap** (NOT the MVP).
 3. `.kiro/specs/driver-management-dashboard` — **non-authoritative** (a different, simpler model with Viewer/Manager roles). Treat as archived.
 
@@ -47,7 +47,7 @@ Do not invent manager/dispatcher/team-leader roles — the ERD has none
 PII protection, auditability, availability, and backup/restore all matter; no SLA/SLO
 numbers are confirmed. Do not invent them.
 
-## Open decision log (from AGENTS.md §10 / handoff §10)
+## Open decision log (from docs/agent-guide.md §10 / handoff §10)
 
 | ID | Decision | Current default | Status |
 |---|---|---|---|

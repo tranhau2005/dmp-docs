@@ -1,8 +1,8 @@
 # Tech Steering — Driver Management Platform
 
-> Sources: `AGENTS.md` §2–§6, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`, `.gitignore`.
+> Sources: `docs/agent-guide.md` §2–§6, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`, `.gitignore`.
 
-## Pinned stack (AGENTS.md §2)
+## Pinned stack (docs/agent-guide.md §2)
 
 | Layer | Choice | Version target | Notes |
 |---|---|---|---|
@@ -58,26 +58,26 @@ from the policy month, this 1:1 is ambiguous → `[NEEDS-OWNER]`.
 - `DATABASE_URL` from env; dev default: `postgresql+psycopg://postgres:postgres@localhost:5432/dmp`.
 - Never hardcode secrets; honor `.gitignore` (`.env`, `*.pem/key`, `credentials/`, etc.).
 
-## Standard commands (AGENTS.md §4)
+## Standard commands (docs/agent-guide.md §4)
 
 ```bash
-# dev database
+# dev database (from the dmp-infra repo root; compose file: dmp-infra/docker-compose.yml)
 docker compose up -d db
 
-# backend (from services/api)
+# backend (from the dmp-api repo root)
 uv sync
 uv run alembic upgrade head
 uv run pytest
 uv run ruff check . && uv run ruff format .
 
-# web (from apps/web)
+# web (from the dmp-web repo root)
 npm install
 npm run build
 npm run lint
 ```
 Do not run the dev server / watch mode as a blocking step in automation; a human runs those manually.
 
-## Definition of "Done" (AGENTS.md §8)
+## Definition of "Done" (docs/agent-guide.md §8)
 
 - `uv run pytest` passes (backend); `npm run build` + `npm run lint` pass (web).
 - Each new endpoint has ≥1 happy-path test, 1 auth/permission test, 1 validation/error test.
