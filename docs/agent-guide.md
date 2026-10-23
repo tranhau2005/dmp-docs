@@ -1,30 +1,15 @@
 <!--
-Provenance: copied verbatim from AGENTS.md in the former monorepo
+Provenance: copied from AGENTS.md in the former monorepo
 tranhau2005/DriverManagementPlatform, branch ao/drivermanagementplatform-10/docs-specs
-(commit 11603c2). Only this header and the path-mapping table below were added.
+(commit 11603c2). Sections 0, 1 and 3 have since been updated for the multi-repo layout;
+all other sections are unchanged.
 -->
 
 > **Note:** This guide originated as `AGENTS.md` in the DriverManagementPlatform monorepo. It is now the
 > **authoritative agent guide for the multi-repo layout** and lives in this repository (dmp-docs).
-> The sections below are kept verbatim, including their section numbers, so existing references such as
-> `docs/agent-guide.md §7` stay stable. Where the text says "this AGENTS.md" or "this file", read it as this guide.
-> Where it describes monorepo paths, translate them with the mapping table below.
-
-### Monorepo path → repository mapping
-
-| Monorepo path (as written below) | Multi-repo location |
-|---|---|
-| `services/api/` (`pyproject.toml`, `alembic.ini`, `alembic/versions/`, `app/...`) | `dmp-api` (repository root; `app/...`) |
-| `apps/web/`, `packages/ui`, `packages/api-client` | `dmp-web` |
-| `apps/mobile/` | `dmp-mobile` |
-| `services/agent-orchestrator/` | `dmp-agent-orchestrator` |
-| `services/event-consumer/` | `dmp-event-consumer` |
-| `services/data-processing/` | `dmp-data-processing` |
-| `infra/*`, root `docker-compose.yml`, scripts | `dmp-infra` (compose file at `dmp-infra/docker-compose.yml`) |
-| `docs/`, `data/`, `.kiro/`, `packages/contracts`, `kiro-system-architecture-handoff.md` | `dmp-docs` (this repository) |
-
-Commands in §4 that say "run from services/api" run from the `dmp-api` repository root; "run from apps/web" runs
-from the `dmp-web` repository root; `docker compose up -d db` runs from the `dmp-infra` repository root.
+> Section numbers are kept stable so existing references such as `docs/agent-guide.md §7` still resolve.
+> Where the text says "this AGENTS.md" or "this file", read it as this guide. Sections 4-10 still use some
+> monorepo paths (`services/api`, `apps/web`, root `docker-compose.yml`); translate them with the mapping table in Section 3.
 
 ---
 
@@ -39,25 +24,27 @@ from the `dmp-web` repository root; `docker compose up -d db` runs from the `dmp
 ## 0. TL\;DR for agents
 
 - This is a **driver management platform**: accounts, drivers, vehicles, customers, bookings, leave/approval, timekeeping, and payroll.
-- Stack: **FastAPI + PostgreSQL** backend (modular monolith), **React** web, **React Native** mobile. Monorepo.
-- The schema in `docs/schema.dbml` / Appendix A is the **authoritative data model**. Do not rename tables, columns, roles, or statuses.
+- Stack: **FastAPI + PostgreSQL** backend (modular monolith), **React** web, **React Native** mobile. **Multi-repo**: independently versioned `dmp-*` repositories checked out side by side (Section 3).
+- The schema in `dmp-docs/docs/schema.dbml` / Appendix A is the **authoritative data model**. Do not rename tables, columns, roles, or statuses.
 - Build the **MVP slice in Section 7 first**. It is fully specified - you can build it end to end without asking anyone.
 - Anything marked **[ASSUMPTION]** is a reasonable default chosen so you can proceed. It is safe to build on, but leave a `# ASSUMPTION:` code comment so a human can confirm later.
 - Anything marked **[NEEDS-OWNER]** is a business rule that is *not* decided. Do **not** invent it. Stub it, raise `NotImplementedError`, and add a `# NEEDS-OWNER:` comment. See Section 9.
 
 ---
 
-## 1. Current repository state (read this - the repo is almost empty)
+## 1. Current repository state
 
-As of now the repository contains only:
+The platform is split into independently versioned repositories (layout and path mapping in Section 3). As of now:
 
-- `kiro-system-architecture-handoff.md` - the architecture review/handoff doc (reference, not instructions).
-- `.kiro/` - Kiro spec workspace.
-- this `AGENTS.md`.
+- **dmp-api** has the **M1 scaffold** (Section 7): `pyproject.toml` + `uv.lock` (Python 3.12), FastAPI app factory `app/main.py` with `GET /health` -> `{"status":"ok"}`, `app/core/` (`config.py` reading `DATABASE_URL`, async SQLAlchemy session in `db.py`, typed domain errors + a single exception handler in `errors.py`), async Alembic setup (`alembic.ini`, `alembic/env.py`, empty `alembic/versions/`), and `tests/test_main.py`. Domain folders under `app/domains/` are empty placeholders. **No models or migrations yet** - M2 onward is not built.
+- **dmp-infra** has `docker-compose.yml` with a `db` service (PostgreSQL 16, database `dmp`, bound to `127.0.0.1:5432`). `docker/`, `databases/`, `kafka/`, `monitoring/`, `scripts/` are empty placeholders.
+- **dmp-docs** (this repository) holds this guide, `docs/schema.dbml`, `docs/architecture/`, `kiro-system-architecture-handoff.md` (reference, not instructions), the Kiro workspace `.kiro/` (`specs/`, `steering/`), and placeholder `data/` and `packages/contracts/` folders.
+- **dmp-web**, **dmp-mobile**, **dmp-agent-orchestrator**, **dmp-event-consumer**, **dmp-data-processing** are scaffolds without application code. Treat empty directories as **intent**, not implemented code.
+- **DriverManagementPlatform** is now the hub repository: a README that links the repositories and documents the side-by-side checkout. It contains no application code.
 
-There is **no** application code, no `apps/`, no `services/`, no `infra/`, no `README.md` yet. Earlier docs describe these as if they exist - they do not. **You are creating them.** Scaffold the structure in Section 3 before writing feature code.
+Build on the existing dmp-api scaffold; do not re-scaffold it. Continue with M2 in Section 7.
 
-> WARNING: Do not confuse this with `.kiro/specs/driver-management-dashboard/`. That spec describes a *different, simpler* system (roles `Viewer`/`Manager`, a trimmed model). It is **not authoritative** for this platform. Use only this AGENTS.md and Appendix A.
+> WARNING: Do not confuse this with `dmp-docs/.kiro/specs/driver-management-dashboard/`. That spec describes a *different, simpler* system (roles `Viewer`/`Manager`, a trimmed model). It is **not authoritative** for this platform. Use only this guide and Appendix A.
 
 ---
 
@@ -84,31 +71,78 @@ There is **no** application code, no `apps/`, no `services/`, no `infra/`, no `R
 
 ---
 
-## 3. Monorepo layout (create this)
+## 3. Repository layout (multi-repo)
+
+Clone every repository **side by side** in one parent directory; cross-repository relative paths depend on it:
 
 ```
-/
-  AGENTS.md
-  README.md                     # short: how to run; link here for details
-  docker-compose.yml            # dev postgres (+ api once it exists)
-  docs/
-    schema.dbml                 # copy of Appendix A - keep in sync
-  apps/
-    web/                        # React + Vite + TS
-    mobile/                     # React Native + TS   [later]
-  services/
-    api/
-      pyproject.toml
-      alembic.ini
-      alembic/versions/
-      app/
-        main.py                 # FastAPI app factory
-        core/                   # config, db session, security
-        domains/
-          accounts/ areas/ drivers/ licenses/ vehicles/
-          customers/ bookings/ leave/ scheduling/ payroll/
-        tests/
+<parent>/
+  DriverManagementPlatform/     # hub: README linking all repositories; no application code
+  dmp-api/                      # FastAPI backend (modular monolith)
+    pyproject.toml  uv.lock  alembic.ini  .env.example
+    alembic/versions/
+    app/
+      main.py                   # FastAPI app factory
+      core/                     # config, db session, errors (security later)
+      domains/<domain>/         # see per-domain convention below
+    tests/                      # pytest testpaths
+  dmp-web/                      # React + Vite + TS (admin web)
+    packages/ui/                # shared UI components
+    packages/api-client/        # typed client generated from the dmp-api OpenAPI
+  dmp-mobile/                   # React Native + TS   [later]
+  dmp-agent-orchestrator/       # out of MVP (D-09)
+  dmp-event-consumer/           # out of MVP (D-04)
+  dmp-data-processing/          # out of MVP
+  dmp-infra/
+    docker-compose.yml          # dev postgres (service `db`)
+    docker/ databases/ kafka/ monitoring/ scripts/
+  dmp-docs/
+    docs/schema.dbml            # copy of Appendix A - keep in sync
+    docs/agent-guide.md         # this guide
+    docs/architecture/ docs/decisions/ docs/api/ docs/data/
+    .kiro/specs/  .kiro/steering/
+    data/  packages/contracts/
+    kiro-system-architecture-handoff.md
 ```
+
+Cross-repository wiring:
+
+- dmp-api starts its dev database with dmp-infra's Compose file: `docker compose -f ../dmp-infra/docker-compose.yml up -d db` from the dmp-api root (or `docker compose up -d db` from the dmp-infra root).
+- When dmp-infra gains an API build context, it targets `../dmp-api`.
+- Specs live only in `dmp-docs/.kiro/specs`; shared API/event contracts live in `dmp-docs/packages/contracts`. Coordinate contract changes with every affected repository.
+
+### Monorepo path -> repository mapping
+
+| Former monorepo path | Multi-repo location |
+|---|---|
+| `AGENTS.md` | `dmp-docs/docs/agent-guide.md` (each repository also has its own short `AGENTS.md`/`CLAUDE.md`) |
+| `README.md` (root) | `DriverManagementPlatform/README.md` (hub); each repository has its own `README.md` |
+| `docker-compose.yml` (root) | `dmp-infra/docker-compose.yml` |
+| `infra/*`, scripts | `dmp-infra/` |
+| `docs/` (incl. `docs/schema.dbml`) | `dmp-docs/docs/` |
+| `data/`, `packages/contracts` | `dmp-docs/data/`, `dmp-docs/packages/contracts/` |
+| `.kiro/` (specs, steering) | `dmp-docs/.kiro/` |
+| `kiro-system-architecture-handoff.md` | `dmp-docs/kiro-system-architecture-handoff.md` |
+| `services/api/` (`pyproject.toml`, `alembic.ini`, `alembic/versions/`, `app/...`) | `dmp-api/` repository root (same relative paths) |
+| `services/api/app/tests/` | `dmp-api/tests/` |
+| `apps/web/` | `dmp-web/` repository root |
+| `packages/ui`, `packages/api-client` | `dmp-web/packages/ui`, `dmp-web/packages/api-client` |
+| `apps/mobile/` | `dmp-mobile/` |
+| `services/agent-orchestrator/` | `dmp-agent-orchestrator/` |
+| `services/event-consumer/` | `dmp-event-consumer/` |
+| `services/data-processing/` | `dmp-data-processing/` |
+
+Commands in Section 4 that say "run from services/api" run from the `dmp-api` root; "run from apps/web" runs from the
+`dmp-web` root; `docker compose up -d db` runs from the `dmp-infra` root (or with `-f ../dmp-infra/docker-compose.yml` from `dmp-api`).
+
+### dmp-api domains
+
+Target domains under `dmp-api/app/domains/`: `accounts/ areas/ drivers/ licenses/ vehicles/ customers/ bookings/ leave/ scheduling/ payroll/`.
+
+The current M1 scaffold diverges: it has empty placeholder domains `auth/ drivers/ vehicles/ assignments/`, each split into
+`models/ repositories/ routers/ schemas/ services/` sub-packages, plus empty `app/database/`, `app/dependencies/`,
+`app/infrastructure/`, `app/routers/`. Tests currently live in the root `tests/` folder (pytest `testpaths`). When implementing,
+follow the convention below; `assignments` (the `driver_vehicles` relationship) belongs with `vehicles`.
 
 **Per-domain module convention (strict).** Each `domains/<name>/` folder contains:
 
