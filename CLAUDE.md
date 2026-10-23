@@ -4,7 +4,9 @@ System specifications, architecture, schemas, data assets, and shared contracts.
 
 ## Repository map and collaboration
 
-See [dmp-docs](https://github.com/tranhau2005/dmp-docs) for Kiro specifications, architecture, schema, and shared contracts. Coordinate interface changes with the sibling repositories: dmp-api, dmp-web, dmp-mobile, dmp-agent-orchestrator, dmp-event-consumer, dmp-data-processing, dmp-infra. Treat this repository as independently versioned and keep cross-repository changes explicit.
+**Authoritative agent guide:** [docs/agent-guide.md](docs/agent-guide.md) — pinned stack (§2), layout (§3), commands (§4), backend and migration-integrity rules (§5), MVP slice M1–M5 (§7), done-definition (§8), `[NEEDS-OWNER]` rules (§9), and the D-01..D-09 decision log (§10). Read it before writing code in any dmp-* repository.
+
+This repo (dmp-docs) holds the Kiro specifications, architecture, schema, and shared contracts. Coordinate interface changes with the sibling repositories: dmp-api, dmp-web, dmp-mobile, dmp-agent-orchestrator, dmp-event-consumer, dmp-data-processing, dmp-infra. Treat this repository as independently versioned and keep cross-repository changes explicit.
 
 ### Documentation and data conventions
 
@@ -14,5 +16,5 @@ See [dmp-docs](https://github.com/tranhau2005/dmp-docs) for Kiro specifications,
 
 ## Commit and branch conventions
 
-- Commits MUST follow Conventional Commits 1.0: `<type>(<optional scope>)!: <description>`. Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Use an imperative, lowercase description with no trailing period; keep the header at 72 characters or fewer. A body/footer is optional; mark breaking changes with `!` or a `BREAKING CHANGE:` footer.
+- Commits MUST follow Conventional Commits 1.0: `<type>[(<scope>)][!]: <description>`. Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Use an imperative, lowercase description with no trailing period; keep the header at 72 characters or fewer. A body/footer is optional; mark breaking changes with `!` or a `BREAKING CHANGE:` footer.
 - Branches MUST follow `<type>/<short-kebab-description>`, using one of the same types (for example `feat/m2-schema-migrations`, `fix/auth-token-expiry`, `docs/update-readme`). Never commit directly to `main`; work through pull requests.
