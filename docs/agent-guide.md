@@ -10,6 +10,7 @@ all other sections are unchanged.
 > Section numbers are kept stable so existing references such as `docs/agent-guide.md §7` still resolve.
 > Where the text says "this AGENTS.md" or "this file", read it as this guide. Sections 4-10 still use some
 > monorepo paths (`services/api`, `apps/web`, root `docker-compose.yml`); translate them with the mapping table in Section 3.
+> Owner-confirmed business rules (source revision 2026-10-27): [docs/business-rules.md](business-rules.md).
 
 ---
 

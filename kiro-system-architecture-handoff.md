@@ -2,7 +2,7 @@
 
 > Purpose: give KIRO the project context, current design baseline, and review questions needed to continue the system design.
 >
-> Source status: the repository is a scaffold, but the project owner has provided the design report's table of contents and a PostgreSQL DBML schema in the conversation. The owner-provided design is the current business/ERD source of truth and takes precedence over any preliminary proposals in this document. Details that appear only as table-of-contents headings must be verified against the full report before they are treated as requirements.
+> Source status: the owner-approved `bao-cao.tex` revision dated 2026-10-27 contains the full business and design rules. Its structured rule extract is [docs/business-rules.md](docs/business-rules.md). Precedence is `bao-cao.tex` (business rules) = `schema.dbml` (structure) > `docs/agent-guide.md` (conventions) > this handoff (history), per feedback §0.1.
 
 ## 1. Instructions for KIRO
 
@@ -38,9 +38,9 @@ Use this document as the starting point for an architecture review. Prioritize t
 - The data design covers accounts, areas, driver profiles/employment history/licenses, vehicles and driver–vehicle assignments, customers/bookings, leave requests and approval history, work schedules/activity sessions, income policies, payroll periods/payrolls/payroll adjustments.
 - The report's table of contents includes a functional diagram, business permission matrix, grouped ERDs, integrity constraints, approval/state transitions, timekeeping/payroll, reports, and indexes.
 
-### Not confirmed from the material currently available
+### Additional confirmed business rules (D1)
 
-The full body of the LaTeX report, functional/ERD diagram images, detailed table descriptions, permission matrix, payroll formula, timekeeping rules, report definitions, load estimates, SLA, jurisdiction, and production deployment model have not been provided. KIRO must use the supplied DBML as-is while marking rules mentioned only in report headings as requiring verification from the full source.
+The full report defines the permission matrix, per-table rules, leave approval effects, timekeeping and payroll calculations, period finalization, reports, and deletion/archive behavior. Use `docs/business-rules.md` for the cited extract; do not treat these rules as unresolved merely because this handoff previously had only the report contents page. [Source: `bao-cao.tex` (2026-10-27), §§2, 3.2, 3.5–3.8.]
 
 ## 3. Design scope for KIRO to review
 
@@ -56,7 +56,7 @@ The target design should cover these layers. Priorities and business details sho
 
 ## 4. Functional map based on the current design
 
-This scope is derived from the DBML and report table of contents provided by the project owner. The table of contents reveals section names only; it is not sufficient to reproduce the original functional diagram or detailed permission matrix.
+This scope follows the full owner-approved report and DBML. The business rules and permission matrix are available in [docs/business-rules.md](docs/business-rules.md); consult it for detailed functional and table rules.
 
 | Functional area | Design evidence | What is currently known | KIRO must verify from the full report |
 |---|---|---|---|
@@ -236,10 +236,10 @@ The design is ready for implementation when:
 ## 13. Sources and evidence level
 
 - `README.md`, `AGENTS.md`: planned stack and repository structure; the repository remains a scaffold.
-- LaTeX report supplied by the project owner in the conversation: only the table of contents/metadata is currently available. It reveals section, table, and diagram names but not their full content or figures.
+- `bao-cao.tex` (owner-approved revision 2026-10-27): authoritative business requirements and detailed table/report rules; see the cited extract in `docs/business-rules.md`.
 - PostgreSQL DBML supplied by the project owner in the conversation: current detailed schema and relationships, transcribed in Section 14.
 
-If the full report differs from the supplied excerpt, KIRO should describe the discrepancy and ask the project owner before changing the schema or business rules.
+If a source discrepancy remains, describe it and ask the project owner before changing the schema or business rules.
 
 ## 14. Source DBML — PostgreSQL
 
