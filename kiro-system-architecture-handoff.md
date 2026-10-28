@@ -1,6 +1,6 @@
 # DriverManagementPlatform — Architecture Handoff Spec for KIRO
 
-> Purpose: give KIRO the project context, current design baseline, and review questions needed to continue the system design.
+> Historical handoff: the layout and status descriptions below capture an earlier snapshot and are not current guidance. Use [the agent guide](docs/agent-guide.md) for the current multi-repo layout and progress.
 >
 > Source status: the owner-approved `bao-cao.tex` revision dated 2026-10-27 contains the full business and design rules. Its structured rule extract is [docs/business-rules.md](docs/business-rules.md). Precedence is `bao-cao.tex` (business rules) = `schema.dbml` (structure) > `docs/agent-guide.md` (conventions) > this handoff (history), per feedback §0.1.
 

@@ -21,7 +21,7 @@ A platform to manage the driver-workforce lifecycle for a **single organization*
 
 ## Actors (from the data model only)
 
-- **ADMIN** — administrative account. Detailed permission matrix is `[NEEDS-OWNER]`.
+- **ADMIN** — administrative account. Permission matrix: **Resolved by bao-cao.tex**, see [business rules](../../docs/business-rules.md#permission-matrix).
 - **DRIVER** — account optionally linked 1:1 to a driver profile.
 - **CUSTOMER** — account optionally linked 1:1 to a customer profile.
 
@@ -33,16 +33,14 @@ Do not invent manager/dispatcher/team-leader roles — the ERD has none
 - **MVP = docs/agent-guide.md §7 (M1–M5):** scaffold + health, schema + migrations, accounts + auth,
   drivers + licenses, vehicles + assignment. Build the synchronous path, then **stop for review**.
 - **Out of MVP:** Kafka, event-consumer, data-processing, analytics lakehouse (D-04 = No for now).
-- **`[NEEDS-OWNER]` — do NOT invent (stub + raise NotImplementedError):** booking lifecycle & fare,
-  leave-approval effects, timekeeping aggregation, payroll formula, report definitions,
-  any permission rule beyond "ADMIN manages; DRIVER/CUSTOMER see their own".
+- **Resolved by bao-cao.tex:** booking, leave, status mapping, timekeeping, payroll, reports, deletion and the permission matrix follow [business rules](../../docs/business-rules.md). Q1–Q10 are decided; see [owner decisions](../../docs/business-rules.md#owner-decisions) (OWNER-APPROVED: Q1 through OWNER-APPROVED: Q10).
 - **Single-organization only.** No multi-tenancy (the ERD has no tenant table).
 
 ## Source-of-truth hierarchy
 
-1. `docs/schema.dbml` + `docs/agent-guide.md` — **authoritative** (data + conventions + MVP).
+1. `bao-cao.tex` / [business rules](../../docs/business-rules.md) for business rules and `docs/schema.dbml` for structure; `docs/agent-guide.md` for conventions and MVP.
 2. `docs/architecture/system-architecture.md` — **target architecture / roadmap** (NOT the MVP).
-3. `.kiro/specs/driver-management-dashboard` — **non-authoritative** (a different, simpler model with Viewer/Manager roles). Treat as archived.
+3. `.kiro/specs/_archived/driver-management-dashboard` — **non-authoritative** (a different, simpler model with Viewer/Manager roles). Treat as archived.
 
 ## Non-functional intent (unquantified — `[NEEDS-OWNER]` for concrete targets)
 
@@ -57,8 +55,8 @@ numbers are confirmed. Do not invent them.
 | D-02 | Multi-tenant? | Single-org, no tenant table | ASSUMPTION |
 | D-03 | DB ops / backup | dev compose only | NEEDS-OWNER (prod) |
 | D-04 | Kafka in MVP? | No | ASSUMPTION |
-| D-05 | Booking/leave/timekeeping/assignment lifecycle | storage only, rules stubbed | NEEDS-OWNER |
+| D-05 | Booking/leave/timekeeping/assignment lifecycle | [Business rules](../../docs/business-rules.md) | Resolved by bao-cao.tex |
 | D-06 | Identity / authz model | JWT + role claim | ASSUMPTION |
 | D-07 | Cloud/region/topology | undecided | NEEDS-OWNER |
-| D-08 | Report definitions | undecided | NEEDS-OWNER |
+| D-08 | Report definitions | [Reports](../../docs/business-rules.md#reports) | Resolved by bao-cao.tex |
 | D-09 | AI/agent capabilities | none in MVP | ASSUMPTION |

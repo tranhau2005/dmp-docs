@@ -14,7 +14,7 @@ Build the MVP in order (M1 → M5). Each slice is independently shippable and te
   - _Requirements: 1.4, 6.4_
 - [ ] 1.3 Implement `GET /health` returning `{"status":"ok"}` and register a single exception handler in `app/core/errors.py`.
   - _Requirements: 1.2, 6.3_
-- [ ] 1.4 Add `dmp-infra/docker-compose.yml` with PostgreSQL 16 on localhost:5432.
+- [ ] 1.4 Add `dmp-infra/docker-compose.yml` with PostgreSQL 16 on localhost:5433.
   - _Requirements: 1.1_
 - [ ] 1.5 Add at least one passing test and wire `uv run pytest` + `ruff`.
   - _Requirements: 1.3, 6.6_
@@ -33,7 +33,7 @@ Build the MVP in order (M1 → M5). Each slice is independently shippable and te
   - _Requirements: 2.4_
 - [ ] 2.6 Add `EXCLUDE` (btree_gist) constraints preventing overlapping intervals on `employment_history` and `driver_vehicles`.
   - _Requirements: 2.5_
-- [ ] 2.7 Add soft-archive `archived_at` handling on `drivers`/`customers`; preserve the `payrolls.policy_id` ambiguity as-is with a `# NEEDS-OWNER:` note.
+- [ ] 2.7 Add soft-archive `archived_at` handling on `drivers`/`customers`; enforce policy-driver matching with a composite FK and policy-period month matching with a trigger; retain intentional `UNIQUE(policy_id)` (Resolved by bao-cao.tex; [business rules](../../../docs/business-rules.md#cross-table-integrity-and-deletion)).
   - _Requirements: 2.6, 2.9_
 - [ ] 2.8 Write a round-trip test (insert + read one account and one driver) and a rejection test per added constraint.
   - _Requirements: 2.7, 2.8, 6.6_
@@ -73,12 +73,12 @@ Build the MVP in order (M1 → M5). Each slice is independently shippable and te
 
 ### Storage-only (stub, do not implement rules)
 
-- [ ] 6.1 Add models + migration coverage for `customers`, `bookings`, `leave_requests`, `leave_actions`, `work_schedule`, `activity_sessions`, `income_policies`, `payroll_periods`, `payrolls`, `payroll_adjustments`; stub service lifecycle methods with `NotImplementedError` + `# NEEDS-OWNER:` comments.
+- [ ] 6.1 Add models + migration coverage for `customers`, `bookings`, `leave_requests`, `leave_actions`, `work_schedule`, `activity_sessions`, `income_policies`, `payroll_periods`, `payrolls`, `payroll_adjustments`; defer lifecycle implementation beyond M1–M5; follow the resolved [business rules](../../../docs/business-rules.md) when implemented.
   - _Requirements: Non-Goals; 2.1_
 
 ### Review gate
 
-- [ ] 7.1 Stop after M5. Confirm all `[ASSUMPTION]` comments are present and surface open `[NEEDS-OWNER]` decisions (payroll policy_id, PII masking/retention, FK/archive policy, lifecycle rules) for human review.
+- [ ] 7.1 Stop after M5. Confirm all `[ASSUMPTION]` comments are present and surface genuinely unresolved decisions for human review; policy, FK/archive and lifecycle rules are resolved by bao-cao.tex.
   - _Requirements: 2.9, 6.6_
 
 ## Task Dependency Graph
@@ -122,7 +122,7 @@ flowchart TD
 
 ## Notes
 
-- Work stops after M5 at the review gate (7.1); M6+ depends on `[NEEDS-OWNER]` business rules and is out of MVP scope.
-- `[NEEDS-OWNER]` domains (bookings, leave, scheduling/timekeeping, payroll) are storage-only: create models + migrations, stub lifecycle with `NotImplementedError` and a `# NEEDS-OWNER:` comment — do not invent rules.
-- Every `[ASSUMPTION]` relied on (DB URL, JWT/hashing, overlap policy, FK/archive policy) must carry a `# ASSUMPTION:` code comment at the point of use so a human can confirm it.
+- Work stops after M5 at the review gate (7.1); M6+ is outside the M1–M5 scope; its business rules are resolved by bao-cao.tex.
+- Bookings, leave, scheduling/timekeeping and payroll are storage-only in M1–M5; subsequent work follows [business rules](../../../docs/business-rules.md).
+- Every `[ASSUMPTION]` relied on (DB URL, JWT/hashing, overlap policy) must carry a `# ASSUMPTION:` code comment at the point of use so a human can confirm it.
 - Each task references specific requirements for traceability; checkpoints are enforced by the per-task done-definition in the Overview.

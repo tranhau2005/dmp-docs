@@ -1,16 +1,4 @@
-<!--
-Provenance: copied from AGENTS.md in the former monorepo
-tranhau2005/DriverManagementPlatform, branch ao/drivermanagementplatform-10/docs-specs
-(commit 11603c2). Sections 0, 1 and 3 have since been updated for the multi-repo layout;
-all other sections are unchanged.
--->
-
-> **Note:** This guide originated as `AGENTS.md` in the DriverManagementPlatform monorepo. It is now the
-> **authoritative agent guide for the multi-repo layout** and lives in this repository (dmp-docs).
-> Section numbers are kept stable so existing references such as `docs/agent-guide.md §7` still resolve.
-> Where the text says "this AGENTS.md" or "this file", read it as this guide. Sections 4-10 still use some
-> monorepo paths (`services/api`, `apps/web`, root `docker-compose.yml`); translate them with the mapping table in Section 3.
-> Owner-confirmed business rules (source revision 2026-10-27): [docs/business-rules.md](business-rules.md).
+> **Authoritative multi-repo agent guide.** Owner-confirmed business rules: [docs/business-rules.md](business-rules.md). Section numbers remain stable for existing references.
 
 ---
 
@@ -35,17 +23,15 @@ all other sections are unchanged.
 
 ## 1. Current repository state
 
-The platform is split into independently versioned repositories (layout and path mapping in Section 3). As of now:
+The platform uses independently versioned repositories checked out side by side (Section 3).
 
-- **dmp-api** has the **M1 scaffold** (Section 7): `pyproject.toml` + `uv.lock` (Python 3.12), FastAPI app factory `app/main.py` with `GET /health` -> `{"status":"ok"}`, `app/core/` (`config.py` reading `DATABASE_URL`, async SQLAlchemy session in `db.py`, typed domain errors + a single exception handler in `errors.py`), async Alembic setup (`alembic.ini`, `alembic/env.py`, empty `alembic/versions/`), and `tests/test_main.py`. Domain folders under `app/domains/` are empty placeholders. **No models or migrations yet** - M2 onward is not built.
-- **dmp-infra** has `docker-compose.yml` with a `db` service (PostgreSQL 16, database `dmp`, bound to `127.0.0.1:5432`). `docker/`, `databases/`, `kafka/`, `monitoring/`, `scripts/` are empty placeholders.
-- **dmp-docs** (this repository) holds this guide, `docs/schema.dbml`, `docs/architecture/`, `kiro-system-architecture-handoff.md` (reference, not instructions), the Kiro workspace `.kiro/` (`specs/`, `steering/`), and placeholder `data/` and `packages/contracts/` folders.
-- **dmp-web**, **dmp-mobile**, **dmp-agent-orchestrator**, **dmp-event-consumer**, **dmp-data-processing** are scaffolds without application code. Treat empty directories as **intent**, not implemented code.
-- **DriverManagementPlatform** is now the hub repository: a README that links the repositories and documents the side-by-side checkout. It contains no application code.
+- **dmp-api:** M1–M5 and the DB-01 integrity migration are merged.
+- **dmp-web:** the admin UI is in progress.
+- **dmp-infra:** PostgreSQL 16 development database, exposed on host port 5433 by default.
+- **dmp-docs:** shared specifications, business rules, schema and architecture.
+- **DriverManagementPlatform:** hub linking the repositories.
 
-Build on the existing dmp-api scaffold; do not re-scaffold it. Continue with M2 in Section 7.
-
-> WARNING: Do not confuse this with `dmp-docs/.kiro/specs/driver-management-dashboard/`. That spec describes a *different, simpler* system (roles `Viewer`/`Manager`, a trimmed model). It is **not authoritative** for this platform. Use only this guide and Appendix A.
+The [archived dashboard spec](../.kiro/specs/_archived/driver-management-dashboard/) describes a different, simpler system and is not authoritative.
 
 ---
 
@@ -68,7 +54,7 @@ Build on the existing dmp-api scaffold; do not re-scaffold it. Continue with M2 
 | Lint/format (ts) | eslint + prettier | latest | |
 | Container | Docker + docker-compose | latest | dev Postgres via compose |
 
-**[ASSUMPTION]** Kafka, event-consumer, data-processing, and agent-orchestrator services are **out of MVP scope**. Build the synchronous API path first. Do not add Kafka until a [NEEDS-OWNER] async use case is confirmed.
+**[ASSUMPTION]** Kafka, event-consumer, data-processing, and agent-orchestrator services are **out of MVP scope**. Build the synchronous API path first. Add Kafka only after an async use case is confirmed.
 
 ---
 
@@ -112,38 +98,9 @@ Cross-repository wiring:
 - When dmp-infra gains an API build context, it targets `../dmp-api`.
 - Specs live only in `dmp-docs/.kiro/specs`; shared API/event contracts live in `dmp-docs/packages/contracts`. Coordinate contract changes with every affected repository.
 
-### Monorepo path -> repository mapping
-
-| Former monorepo path | Multi-repo location |
-|---|---|
-| `AGENTS.md` | `dmp-docs/docs/agent-guide.md` (each repository also has its own short `AGENTS.md`/`CLAUDE.md`) |
-| `README.md` (root) | `DriverManagementPlatform/README.md` (hub); each repository has its own `README.md` |
-| `docker-compose.yml` (root) | `dmp-infra/docker-compose.yml` |
-| `infra/*`, scripts | `dmp-infra/` |
-| `docs/` (incl. `docs/schema.dbml`) | `dmp-docs/docs/` |
-| `data/`, `packages/contracts` | `dmp-docs/data/`, `dmp-docs/packages/contracts/` |
-| `.kiro/` (specs, steering) | `dmp-docs/.kiro/` |
-| `kiro-system-architecture-handoff.md` | `dmp-docs/kiro-system-architecture-handoff.md` |
-| `services/api/` (`pyproject.toml`, `alembic.ini`, `alembic/versions/`, `app/...`) | `dmp-api/` repository root (same relative paths) |
-| `services/api/app/tests/` | `dmp-api/tests/` |
-| `apps/web/` | `dmp-web/` repository root |
-| `packages/ui`, `packages/api-client` | `dmp-web/packages/ui`, `dmp-web/packages/api-client` |
-| `apps/mobile/` | `dmp-mobile/` |
-| `services/agent-orchestrator/` | `dmp-agent-orchestrator/` |
-| `services/event-consumer/` | `dmp-event-consumer/` |
-| `services/data-processing/` | `dmp-data-processing/` |
-
-Commands in Section 4 that say "run from services/api" run from the `dmp-api` root; "run from apps/web" runs from the
-`dmp-web` root; `docker compose up -d db` runs from the `dmp-infra` root (or with `-f ../dmp-infra/docker-compose.yml` from `dmp-api`).
-
 ### dmp-api domains
 
 Target domains under `dmp-api/app/domains/`: `accounts/ areas/ drivers/ licenses/ vehicles/ customers/ bookings/ leave/ scheduling/ payroll/`.
-
-The current M1 scaffold diverges: it has empty placeholder domains `auth/ drivers/ vehicles/ assignments/`, each split into
-`models/ repositories/ routers/ schemas/ services/` sub-packages, plus empty `app/database/`, `app/dependencies/`,
-`app/infrastructure/`, `app/routers/`. Tests currently live in the root `tests/` folder (pytest `testpaths`). When implementing,
-follow the convention below; `assignments` (the `driver_vehicles` relationship) belongs with `vehicles`.
 
 **Per-domain module convention (strict).** Each `domains/<name>/` folder contains:
 
@@ -163,24 +120,24 @@ Rules: routers never touch the DB directly; services never build HTTP responses;
 Agents must ensure these commands succeed. If a command does not exist yet, create the config that makes it work. Start the DB, apply migrations, then run tests. Do not run the backend dev server or any watch mode as a blocking step in automation; a human runs those manually.
 
 ```bash
-# dev database
-docker compose up -d db                 # Postgres 16 on localhost:5432
+# dev database (run from dmp-infra)
+docker compose up -d db                 # Postgres 16 on localhost:5433
 
-# backend (run from services/api)
+# backend (run from dmp-api)
 uv sync                                  # install deps
 uv run alembic upgrade head              # apply migrations
 uv run pytest                            # tests must pass before a task is done
 uv run ruff check . && uv run ruff format .
 # backend dev server (run manually in a terminal, not in automation)
 
-# web (run from apps/web)
+# web (run from dmp-web)
 npm install
 npm run build
 npm run lint
 # web dev server (run manually in a terminal)
 ```
 
-**[ASSUMPTION]** Local dev DB URL: `postgresql+psycopg://postgres:postgres@localhost:5432/dmp`. Read it from the `DATABASE_URL` env var; never hardcode secrets.
+**[ASSUMPTION]** Local dev DB URL: `postgresql+psycopg://postgres:postgres@localhost:5433/dmp`. Read it from the `DATABASE_URL` env var; never hardcode secrets. Compose host port is configurable with `DMP_DB_PORT` (default `5433`); update `DATABASE_URL` to match overrides.
 
 ---
 
@@ -192,18 +149,18 @@ npm run lint
 - **Money:** all amounts are `numeric(14,0)` -> integer minor units. **[ASSUMPTION]** currency is VND with 0 decimal places. Mark with `# ASSUMPTION:` and confirm.
 - **Time:** store `timestamptz` in UTC. `month` columns are **always the first day of the month** - enforce with a CHECK constraint in the migration.
 - **Auth:** **[ASSUMPTION]** JWT bearer tokens; `password_hash` via argon2 or bcrypt. Never store raw passwords. Never log tokens or PII.
-- **PII:** `drivers` holds DOB, phone, address, citizen_id, emergency_contact. Restrict read access by role, never log these fields, and add an audit entry on read/change of sensitive fields. **[NEEDS-OWNER]** exact masking/retention rules.
+- **PII:** `drivers` holds DOB, phone, address, citizen_id, emergency_contact. Restrict read access by role, never log these fields, and add an audit entry on read/change of sensitive fields. Exact masking and retention remain unspecified.
 - **Attribution:** `changed_by`, `decided_by`, `actor_id`, `created_by` always reference the acting `accounts.id`. Populate them on every write that has such a column.
 
 ### Data-integrity rules to encode in migrations (not just the app)
 
-These close real gaps in the raw DBML. Add them as Alembic migrations with CHECK/constraint SQL:
+These close real gaps in the raw DBML. Add them as Alembic migrations with CHECK/constraint SQL. Status-dependent required fields need DB CHECKs; intervals need `to > from` CHECKs; avoid indexes duplicating UNIQUE/EXCLUDE indexes and declare every index and constraint in ORM metadata too.
 
 1. `accounts`: CHECK that `driver_id` and `customer_id` are not both set, and that the set link matches `role` (DRIVER -> driver_id, CUSTOMER -> customer_id, ADMIN -> neither). **[ASSUMPTION]**
 2. `employment_history` and `driver_vehicles`: prevent **overlapping validity intervals** per driver. Use a PostgreSQL `EXCLUDE` constraint (btree_gist) or enforce in the service inside a serializable transaction. **[ASSUMPTION]** overlaps are not allowed.
 3. Enum/CHECK constraints for every status/role/type column, using the allowed values in the DBML notes (account role/status, employment status, booking status, leave type/status, leave action, vehicle type, adjustment type).
 4. `*.month` columns: CHECK `date_trunc('month', month) = month`.
-5. FK delete behavior: **[ASSUMPTION]** use `ON DELETE RESTRICT` everywhere, plus soft-archive via `archived_at` on `drivers`/`customers`. Do not hard-delete PII. **[NEEDS-OWNER]** confirm.
+5. FK delete behavior: **Resolved by bao-cao.tex:** use `ON DELETE RESTRICT` for historical relationships and soft-archive profiles; archiving does not imply resignation. See [business rules](business-rules.md#cross-table-integrity-and-deletion).
 
 ---
 
@@ -242,7 +199,7 @@ Deliver these in order. Each is independently shippable and testable.
 - CRUD `vehicles`; assign a driver to a vehicle over a validity interval via `driver_vehicles`; reject overlapping active assignments.
 - Acceptance: assigning, then re-assigning closes the prior interval; an overlap is rejected.
 
-> Stop after M5 and ask for review. M6+ (bookings lifecycle, leave approval, timekeeping aggregation, payroll calculation, reports/PDF) depend on **[NEEDS-OWNER]** business rules - see Section 9. Build CRUD/storage for those tables, but do not invent their lifecycle or formulas.
+> M1–M5 are merged. Subsequent domain work follows the resolved rules in Section 9 and [business rules](business-rules.md).
 
 ---
 
@@ -258,19 +215,13 @@ A task is **done** only when:
 
 ---
 
-## 9. Business rules you must NOT invent ([NEEDS-OWNER])
+## 9. Business rules
 
-Stub these; raise `NotImplementedError`; add a `# NEEDS-OWNER:` comment. Do not guess.
+**Resolved by bao-cao.tex:** the [business rules](business-rules.md) define the permission matrix and record scope, booking lifecycle and completed-trip counting, leave approval and request-to-status mapping, timekeeping, payroll formula and finalization, reports, and deletion/archiving. Apply their acceptance criteria; do not label these rules unresolved.
 
-- **Booking lifecycle:** assignment, state transitions (PENDING -> ASSIGNED -> IN_PROGRESS -> COMPLETED/CANCELLED), fare calculation, currency, cancellation fees, concurrency.
-- **Leave/approval:** who may approve which request type, date limits, and the exact effect of approval on `employment_history` and schedules.
-- **Timekeeping:** who or what creates `activity_sessions` (app? booking? device?), overnight/overlap/correction rules, and how sessions aggregate against `work_schedule.planned_minutes`.
-- **Payroll formula:** how `net_amount` is derived from base/trip/bonus/allowance/deduction; the source of `completed_bookings`; rounding; recalculation; period locking; who may finalize; PDF template.
-- **Reports:** exact metrics, filters, permissions, and templates for the three named reports.
-- **Permission matrix:** anything beyond "ADMIN manages, DRIVER/CUSTOMER see their own" is unconfirmed.
-- **Multi-tenancy:** the ERD has **no** organization/tenant table. Treat the system as **single-organization**. Do not add tenancy.
+Q1–Q10 are decided: **OWNER-APPROVED: Q1**, **OWNER-APPROVED: Q2**, **OWNER-APPROVED: Q3**, **OWNER-APPROVED: Q4**, **OWNER-APPROVED: Q5**, **OWNER-APPROVED: Q6**, **OWNER-APPROVED: Q7**, **OWNER-APPROVED: Q8**, **OWNER-APPROVED: Q9**, **OWNER-APPROVED: Q10**. See [owner decisions](business-rules.md#owner-decisions).
 
-If you need one of these to proceed, implement storage/CRUD only, leave the rule as a stub, and surface it in your summary.
+The system is single-organization; do not add tenancy. Before marking any other rule `[NEEDS-OWNER]`, search `docs/business-rules.md` and `bao-cao/bao-cao.tex`, and cite the searched locations.
 
 ---
 
@@ -282,10 +233,10 @@ If you need one of these to proceed, implement storage/CRUD only, leave the rule
 | D-02 | Multi-tenant? | Single-org, no tenant table | [ASSUMPTION] |
 | D-03 | DB ops / backup | dev compose only | [NEEDS-OWNER] prod |
 | D-04 | Kafka in MVP? | No | [ASSUMPTION] |
-| D-05 | Booking/leave/timekeeping/assignment lifecycle | storage only, rules stubbed | [NEEDS-OWNER] |
+| D-05 | Booking/leave/timekeeping/assignment lifecycle | See [business rules](business-rules.md) | Resolved by bao-cao.tex |
 | D-06 | Identity / authz model | JWT + role claim | [ASSUMPTION] |
 | D-07 | Cloud/region/topology | undecided | [NEEDS-OWNER] |
-| D-08 | Report definitions | undecided | [NEEDS-OWNER] |
+| D-08 | Report definitions | See [reports](business-rules.md#reports) | Resolved by bao-cao.tex |
 | D-09 | AI/agent capabilities | none in MVP | [ASSUMPTION] |
 
 ---
@@ -302,4 +253,4 @@ Key invariants to preserve from the DBML:
 - `accounts` links to at most one of driver/customer (see Section 5 rule 1).
 - `*.month` = first day of the month.
 
-> Known schema question (flag, do not silently fix): `payrolls.policy_id` is UNIQUE and FKs to `income_policies`, while `income_policies` is keyed by `(driver_id, month)` and `payrolls` by `(period_id, driver_id)`. If a payroll period's month can differ from the policy month, this 1:1 is ambiguous. Treat as **[NEEDS-OWNER]**.
+> **Resolved by bao-cao.tex:** `UNIQUE(policy_id)` is intentional; a composite FK must match the driver and a trigger must match the policy and period month. See [business rules](business-rules.md#cross-table-integrity-and-deletion).
