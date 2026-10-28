@@ -53,7 +53,7 @@ Add these as Alembic migrations with constraint SQL, since the raw DBML lacks th
 
 ## Config & secrets
 
-- `DATABASE_URL` from env; dev default: `postgresql+psycopg://postgres:postgres@localhost:5433/dmp`.
+- `DATABASE_URL` from env; dev default: `postgresql+psycopg://postgres:postgres@localhost:5433/dmp`. Compose host port defaults to 5433 via `DMP_DB_PORT`; update `DATABASE_URL` when overriding it.
 - Never hardcode secrets; honor `.gitignore` (`.env`, `*.pem/key`, `credentials/`, etc.).
 
 ## Standard commands (docs/agent-guide.md §4)

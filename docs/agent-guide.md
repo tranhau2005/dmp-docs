@@ -15,9 +15,9 @@
 - This is a **driver management platform**: accounts, drivers, vehicles, customers, bookings, leave/approval, timekeeping, and payroll.
 - Stack: **FastAPI + PostgreSQL** backend (modular monolith), **React** web, **React Native** mobile. **Multi-repo**: independently versioned `dmp-*` repositories checked out side by side (Section 3).
 - The schema in `dmp-docs/docs/schema.dbml` / Appendix A is the **authoritative data model**. Do not rename tables, columns, roles, or statuses.
-- Build the **MVP slice in Section 7 first**. It is fully specified - you can build it end to end without asking anyone.
+- M1–M5 are merged. Next work: DB-03 and DB-04, then M6+ according to [business rules](business-rules.md); DB-02 is tracked in [dmp-api PR #10](https://github.com/tranhau2005/dmp-api/pull/10).
 - Anything marked **[ASSUMPTION]** is a reasonable default chosen so you can proceed. It is safe to build on, but leave a `# ASSUMPTION:` code comment so a human can confirm later.
-- Anything marked **[NEEDS-OWNER]** is a business rule that is *not* decided. Do **not** invent it. Stub it, raise `NotImplementedError`, and add a `# NEEDS-OWNER:` comment. See Section 9.
+- Anything marked **[NEEDS-OWNER]** is a business rule that is *not* decided. Do **not** invent it. Stub it, raise `NotImplementedError`, and add a `# NEEDS-OWNER:` comment. Section 9 explains how to check before using the marker.
 
 ---
 
@@ -27,7 +27,7 @@ The platform uses independently versioned repositories checked out side by side 
 
 - **dmp-api:** M1–M5 and the DB-01 integrity migration are merged.
 - **dmp-web:** the admin UI is in progress.
-- **dmp-infra:** PostgreSQL 16 development database, exposed on host port 5433 by default.
+- **dmp-infra:** PostgreSQL 16 development database, exposed on host port 5433 by default (`DMP_DB_PORT`).
 - **dmp-docs:** shared specifications, business rules, schema and architecture.
 - **DriverManagementPlatform:** hub linking the repositories.
 

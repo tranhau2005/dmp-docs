@@ -63,7 +63,7 @@ In scope (MVP):
 6. THE migration SHALL declare FK delete behavior as `ON DELETE RESTRICT` and SHALL provide soft-archive via `archived_at` on `drivers`/`customers` (no hard-delete of PII).
 7. WHEN a round-trip test inserts and reads one `account` and one `driver`, THE test SHALL succeed.
 8. IF data violating any added constraint is inserted, THEN the database SHALL reject it, and a test SHALL prove the rejection.
-9. THE database SHALL match the policy to the payroll driver through a composite FK `(policy_id, driver_id)` referencing `income_policies(id, driver_id)`, and SHALL use a BEFORE INSERT OR UPDATE trigger to require the policy month to match the payroll period month. `UNIQUE(policy_id)` is intentional and SHALL remain. **Resolved by bao-cao.tex**; see [business rules](../../../docs/business-rules.md#cross-table-integrity-and-deletion).
+9. THE database SHALL match the policy to the payroll driver through a composite FK `(policy_id, driver_id)` referencing `income_policies(id, driver_id)`, and SHALL use a BEFORE INSERT OR UPDATE trigger to require the policy month to match the payroll period month. `UNIQUE(policy_id)` is intentional and SHALL remain. **Resolved by bao-cao.tex**; delivered by DB-02 ([dmp-api #10](https://github.com/tranhau2005/dmp-api/pull/10)). See [business rules](../../../docs/business-rules.md#cross-table-integrity-and-deletion).
 
 ### Requirement 3: Accounts and authentication (M3)
 
