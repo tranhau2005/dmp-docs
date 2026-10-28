@@ -2,7 +2,7 @@
 
 > Purpose: give KIRO the project context, current design baseline, and review questions needed to continue the system design.
 >
-> Source status: the repository is a scaffold, but the project owner has provided the design report's table of contents and a PostgreSQL DBML schema in the conversation. The owner-provided design is the current business/ERD source of truth and takes precedence over any preliminary proposals in this document. Details that appear only as table-of-contents headings must be verified against the full report before they are treated as requirements.
+> Source status: the owner-approved `bao-cao.tex` revision dated 2026-10-27 contains the full business and design rules. Its structured rule extract is [docs/business-rules.md](docs/business-rules.md). Precedence is `bao-cao.tex` (business rules) = `schema.dbml` (structure) > `docs/agent-guide.md` (conventions) > this handoff (history), per feedback §0.1.
 
 ## 1. Instructions for KIRO
 
@@ -36,11 +36,11 @@ Use this document as the starting point for an architecture review. Prioritize t
 - The DBML specifies PostgreSQL.
 - The current account roles are `ADMIN`, `DRIVER`, and `CUSTOMER`; the system includes customers and bookings.
 - The data design covers accounts, areas, driver profiles/employment history/licenses, vehicles and driver–vehicle assignments, customers/bookings, leave requests and approval history, work schedules/activity sessions, income policies, payroll periods/payrolls/payroll adjustments.
-- The report's table of contents includes a functional diagram, business permission matrix, grouped ERDs, integrity constraints, approval/state transitions, timekeeping/payroll, reports, and indexes.
+- The full owner-approved report includes the business permission matrix, detailed table rules, integrity constraints, approval/state transitions, timekeeping/payroll, reports, and indexes; see `docs/business-rules.md` for the cited business-rule extract.
 
-### Not confirmed from the material currently available
+### Additional confirmed business rules (D1)
 
-The full body of the LaTeX report, functional/ERD diagram images, detailed table descriptions, permission matrix, payroll formula, timekeeping rules, report definitions, load estimates, SLA, jurisdiction, and production deployment model have not been provided. KIRO must use the supplied DBML as-is while marking rules mentioned only in report headings as requiring verification from the full source.
+The full report defines the permission matrix, per-table rules, leave approval effects, timekeeping and payroll calculations, period finalization, reports, and deletion/archive behavior. Use `docs/business-rules.md` for the cited extract; these owner-confirmed requirements are resolved. [Source: `bao-cao.tex` (2026-10-27), §§2.4, 3.3, 3.6–3.8.]
 
 ## 3. Design scope for KIRO to review
 
@@ -56,24 +56,24 @@ The target design should cover these layers. Priorities and business details sho
 
 ## 4. Functional map based on the current design
 
-This scope is derived from the DBML and report table of contents provided by the project owner. The table of contents reveals section names only; it is not sufficient to reproduce the original functional diagram or detailed permission matrix.
+This scope follows the full owner-approved report and DBML. The business rules and permission matrix are available in [docs/business-rules.md](docs/business-rules.md); consult it for detailed functional and table rules.
 
-| Functional area | Design evidence | What is currently known | KIRO must verify from the full report |
-|---|---|---|---|
-| Accounts and permissions | `accounts`; table of contents includes “Organization structure and roles” and “Business permission matrix” | An account optionally links to one driver or one customer; roles are ADMIN/DRIVER/CUSTOMER; usernames are unique; statuses are ACTIVE/LOCKED/DISABLED | Use cases/screens per role; detailed permission matrix; account creation, reset, and locking flows |
-| Areas | `areas` | Area catalog with unique code and name | Are areas used for operational assignment, reporting, or permission scope? |
-| Driver profile and lifecycle | `drivers`, `employment_history` | Personal profile, driver code, area, start date, archive timestamp; status history has validity intervals and the actor who changed it | Status transition rules; resignation/archive behavior; required/unique constraints for sensitive fields |
-| Driver licenses | `driver_licenses` | A driver may have multiple licenses; license number is unique; class and issue/expiry dates are stored | License classes, validity rules, and expiration reminders |
-| Vehicles and assignment | `vehicles`, `driver_vehicles` | Motorcycle/car catalog; driver–vehicle relationship over a validity interval | Can assignments overlap? What is the vehicle handover process? |
-| Customers and bookings | `customers`, `bookings` | Customer profile; booking has pickup/drop-off, requested/scheduled times, optional driver, fare, status, and cancellation fields | Assignment, state transition, cancellation, fare calculation, and concurrency rules |
-| Leave and approval | `leave_requests`, `leave_actions`, `employment_history` | Request types ANNUAL/SICK/LONG/SUSPEND/RESIGN; PENDING/APPROVED/REJECTED; actions SUBMIT/APPROVE/REJECT; request may be linked to employment history | Approval workflow, approver permissions, date limits, and effects on driver status/schedule |
-| Work schedule and activity | `work_schedule`, `activity_sessions` | Planned minutes per driver/day; activity session start/end; unique source_key | Are sessions created by the app, booking, or device? Overnight, overlapping-session, and correction rules |
-| Income policy and payroll | `income_policies`, `payroll_periods`, `payrolls`, `payroll_adjustments` | Per-driver/month base and trip rates; DRAFT/FINALIZED period; snapshots and bonus/allowance/deduction amounts; adjustments | Formula, timekeeping/booking sources, rounding, recalculation, period locking, permissions, and PDF export |
-| Reports | Table of contents: monthly driver status, workforce composition, payroll PDF | Three report outputs are named | Exact metrics, filters, view permissions, data sources, and PDF template |
+| Functional area | Design evidence | Owner-confirmed rules |
+|---|---|---|
+| Accounts and permissions | `accounts`; report permission matrix | Three roles, account/profile link rules, the 11×3 matrix, server-side record-scope checks, no self-approval, and account security rules. See `docs/business-rules.md` sections “Permission matrix” and “Table rules” (`accounts`). |
+| Areas | `areas` | Unique area code/name; driver area reflects current assignment, and composition reporting uses current area. See `docs/business-rules.md` table rules (`areas`) and Reports. |
+| Driver profile and lifecycle | `drivers`, `employment_history` | Profile constraints, editable contact scope, interval continuity/non-overlap, effective leave/resignation intervals, and request-type/status mapping. See table rules (`drivers`, `employment_history`) and §3.6 rules. |
+| Driver licenses | `driver_licenses` | Expiry cannot precede issue date; validate license eligibility when assigning a vehicle. See table rules (`driver_licenses`). |
+| Vehicles and assignment | `vehicles`, `driver_vehicles` | Assignments are time-bounded and cannot overlap by driver or vehicle. See table rules (`vehicles`, `driver_vehicles`). |
+| Customers and bookings | `customers`, `bookings` | Booking conditional-NULL rules, lifecycle, cancellation states, fare timing, and trip-count source are defined. See table rules (`customers`, `bookings`) and §3.7.2. |
+| Leave and approval | `leave_requests`, `leave_actions`, `employment_history` | ADMIN-only one-time decision flow, transaction/audit behavior, effective dates, future conflicts, resignation effects, and request-to-employment mapping are defined. See table rules and §3.6.3. |
+| Work schedule and activity | `work_schedule`, `activity_sessions` | Schedule semantics, local-day boundary, no overlap, one open session maximum, duration aggregation, and client idempotency key are defined. See table rules and §3.7.1. |
+| Income policy and payroll | `income_policies`, `payroll_periods`, `payrolls`, `payroll_adjustments` | Formula, data sources, six-step lifecycle, draft recalculation, negative-net prohibition, finalized immutability, and later-period corrections are defined. See table rules and §3.7.2–§3.7.3. |
+| Reports | Monthly status, workforce composition, payroll PDF | Metrics, cutoff rules, sources, grouping, tenure bands, and PDF contents are defined. See `docs/business-rules.md` Reports and report §3.8. |
 
 ### Actors represented in the data design
 
-- `ADMIN`: administrative role declared in `accounts`; its detailed permissions are not available.
+- `ADMIN`: administrative role declared in `accounts`; see the owner-approved permission matrix in `docs/business-rules.md`.
 - `DRIVER`: may have an account linked to a driver profile.
 - `CUSTOMER`: may have an account linked to a customer profile.
 
@@ -130,7 +130,7 @@ The source design specifies PostgreSQL and provides the complete DBML in Section
 - `employment_history.valid_from/valid_to` and `driver_vehicles.valid_from/valid_to` represent validity intervals. The DBML does not define exclusion constraints to prevent overlapping intervals.
 - `work_schedule` is unique by `(driver_id, work_date)`; `income_policies` by `(driver_id, month)`; and `payrolls` by `(period_id, driver_id)`.
 - `payroll_periods.month` and `income_policies.month` are intended to be the first day of the month. Consider a CHECK constraint or a dedicated month type to enforce this.
-- Monetary amounts use `numeric(14,0)`. Confirm currency, rounding rules, and the formula against the full report.
+- Monetary amounts use `numeric(14,0)`; payroll formula, trip-count source, and time-duration rounding are defined in `docs/business-rules.md` (§§3.7.1–3.7.2).
 - Most business timestamps use `timestamptz`; not every table has `created_at`. Review audit/lifecycle needs instead of adding timestamps mechanically.
 - `drivers` contains PII (date of birth, phone, address, national ID, emergency contact); design access control, masking, retention, and audit. `password_hash` is intended to store a password hash, never a raw password.
 
@@ -159,7 +159,7 @@ KIRO should add sequence/activity diagrams for flows that are in scope. Suggeste
 6. Create a work schedule and record activity sessions; aggregate timekeeping.
 7. Configure income policies, calculate monthly payroll, add adjustments, finalize the period, and generate reports/PDFs.
 
-Flows 5–7 have corresponding tables in the design, but only their section headings were provided. KIRO must obtain the full report before defining exact business rules.
+Flows 5–7 have corresponding tables and owner-confirmed rules in the full report; use `docs/business-rules.md` before specifying their implementation. This handoff's suggested flows do not supersede those rules.
 
 For each flow, specify the actor, preconditions, happy path, errors/recovery, access rules, data read/written, and events emitted.
 
@@ -203,10 +203,10 @@ No quantitative targets or policies have been provided. KIRO must obtain input b
 | D-02 | Single-organization or multi-organization product; whether organization/tenant is needed | Open; current ERD has no tenant | Business deployment model and data boundaries |
 | D-03 | PostgreSQL operations, migration, and backup strategy | PostgreSQL selected in DBML; operations open | Hosting, scale, RPO/RTO, operational capabilities |
 | D-04 | Whether Kafka is needed from the MVP | Open | Async use cases, integrations, throughput, replay requirements |
-| D-05 | Exact lifecycle rules for bookings, work schedules, activity sessions, and vehicle assignments | Entities/tables exist; rules are unclear | Full business report and operational workflows |
+| D-05 | Exact lifecycle rules for bookings, work schedules, activity sessions, and vehicle assignments | Defined in owner-approved `bao-cao.tex` (2026-10-27); see `docs/business-rules.md` | Implement and verify against the cited rules |
 | D-06 | Identity provider and authorization model | Open | SSO, MFA, roles, data scope, user devices |
 | D-07 | Cloud/region and deployment topology | Open | Data jurisdiction, budget, operations, availability |
-| D-08 | Definitions for driver, workforce, and payroll PDF reports; retention | Reports named in table of contents; definitions missing | Full report sections and output templates |
+| D-08 | Definitions for driver, workforce, and payroll PDF reports; retention | Report definitions are in `bao-cao.tex` (2026-10-27); retention policy remains unspecified | Implement reports from `docs/business-rules.md`; owner input for retention |
 | D-09 | What AI/agents may do | Open | Use cases, automation level, human approval, audit |
 
 ## 11. Expected KIRO outputs after review
@@ -236,10 +236,10 @@ The design is ready for implementation when:
 ## 13. Sources and evidence level
 
 - `README.md`, `AGENTS.md`: planned stack and repository structure; the repository remains a scaffold.
-- LaTeX report supplied by the project owner in the conversation: only the table of contents/metadata is currently available. It reveals section, table, and diagram names but not their full content or figures.
+- `bao-cao.tex` (owner-approved revision 2026-10-27): authoritative business requirements and detailed table/report rules; see the cited extract in `docs/business-rules.md`.
 - PostgreSQL DBML supplied by the project owner in the conversation: current detailed schema and relationships, transcribed in Section 14.
 
-If the full report differs from the supplied excerpt, KIRO should describe the discrepancy and ask the project owner before changing the schema or business rules.
+If a source discrepancy remains, describe it and ask the project owner before changing the schema or business rules.
 
 ## 14. Source DBML — PostgreSQL
 

@@ -3,6 +3,8 @@
 > Sources: `docs/agent-guide.md`, `kiro-system-architecture-handoff.md`, `docs/schema.dbml`.
 > This is the product-direction document. On conflict with older descriptions, this file + the DBML + docs/agent-guide.md win.
 
+Owner-confirmed business rules (source revision 2026-10-27): [docs/business-rules.md](../../docs/business-rules.md).
+
 ## What the product is
 
 A platform to manage the driver-workforce lifecycle for a **single organization**, covering:
