@@ -40,7 +40,7 @@ Use this document as the starting point for an architecture review. Prioritize t
 
 ### Additional confirmed business rules (D1)
 
-The full report defines the permission matrix, per-table rules, leave approval effects, timekeeping and payroll calculations, period finalization, reports, and deletion/archive behavior. Use `docs/business-rules.md` for the cited extract; do not treat these rules as unresolved merely because this handoff previously had only the report contents page. [Source: `bao-cao.tex` (2026-10-27), §§2.4, 3.3, 3.6–3.8.]
+The full report defines the permission matrix, per-table rules, leave approval effects, timekeeping and payroll calculations, period finalization, reports, and deletion/archive behavior. Use `docs/business-rules.md` for the cited extract; these owner-confirmed requirements are resolved. [Source: `bao-cao.tex` (2026-10-27), §§2.4, 3.3, 3.6–3.8.]
 
 ## 3. Design scope for KIRO to review
 
