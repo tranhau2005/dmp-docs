@@ -7,9 +7,7 @@ PostgreSQL 16 — plus a React admin web app (`dmp-web`). All business writes go
 synchronously; there is no Kafka, outbox, or analytics pipeline in the MVP. The design implements
 the authoritative schema in `docs/schema.dbml` and the conventions in `docs/agent-guide.md`.
 
-This design satisfies `requirements.md`. Where a table belongs to a `[NEEDS-OWNER]` domain
-(bookings, leave, scheduling/timekeeping, payroll), the MVP creates storage + migrations only;
-lifecycle logic is stubbed with `NotImplementedError` and a `# NEEDS-OWNER:` comment.
+This design satisfies `requirements.md`. Booking, leave, timekeeping and payroll lifecycle work is beyond M1–M5; their rules are **Resolved by bao-cao.tex** in [business rules](../../../docs/business-rules.md).
 
 ## Architecture
 
@@ -34,7 +32,7 @@ Principles (from steering `tech.md` / `structure.md`):
 ## Components and Interfaces
 
 ### Core (`app/core/`)
-- `config.py` — settings from env; `DATABASE_URL` default `postgresql+psycopg://postgres:postgres@localhost:5432/dmp`.
+- `config.py` — settings from env; `DATABASE_URL` default `postgresql+psycopg://postgres:postgres@localhost:5433/dmp`.
 - `db.py` — async SQLAlchemy 2.x engine + session dependency.
 - `security.py` — JWT encode/decode, password hashing (argon2/bcrypt), current-account dependency, role guard.
 - `errors.py` — typed exceptions (`NotFound`, `Conflict`, `ValidationError`, `Forbidden`) + single FastAPI handler → 404/409/422/403.
@@ -50,8 +48,7 @@ Principles (from steering `tech.md` / `structure.md`):
 ### Domains (storage-only / stubbed in MVP)
 `customers`, `bookings`, `leave` (leave_requests, leave_actions), `scheduling`
 (work_schedule, activity_sessions), `payroll` (income_policies, payroll_periods, payrolls,
-payroll_adjustments): models + migration only; service methods raise `NotImplementedError` with
-`# NEEDS-OWNER:` comments.
+payroll_adjustments): models + migration in M1–M5; later lifecycle work follows the resolved business rules.
 
 ### Representative endpoints (MVP)
 - `GET /health` → `{"status":"ok"}`
@@ -77,9 +74,9 @@ with a `bigint` identity PK. Uniqueness and keys preserved exactly:
 4. `date_trunc('month', month) = month` CHECK on month columns.
 5. `ON DELETE RESTRICT` on FKs + soft-archive via `archived_at`.
 
-### Flagged ambiguity (do not silently fix)
-`payrolls.policy_id` UNIQUE / 1:1 to `income_policies` vs. the `(driver_id, month)` and
-`(period_id, driver_id)` keys. Preserved as-is; resolution is `[NEEDS-OWNER]` before payroll logic.
+### Payroll policy integrity
+
+**Resolved by bao-cao.tex:** retain intentional `UNIQUE(policy_id)`. A composite FK `(policy_id, driver_id)` references `income_policies(id, driver_id)`; a BEFORE INSERT OR UPDATE trigger rejects a policy month different from the payroll period month. See [business rules](../../../docs/business-rules.md#cross-table-integrity-and-deletion).
 
 ## Correctness Properties
 

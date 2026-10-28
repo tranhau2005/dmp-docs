@@ -1,6 +1,6 @@
 # DriverManagementPlatform — Architecture Handoff Spec for KIRO
 
-> Purpose: give KIRO the project context, current design baseline, and review questions needed to continue the system design.
+> Historical handoff: the layout and status descriptions below capture an earlier snapshot and are not current guidance. Use [the agent guide](docs/agent-guide.md) for the current multi-repo layout and progress.
 >
 > Source status: the owner-approved `bao-cao.tex` revision dated 2026-10-27 contains the full business and design rules. Its structured rule extract is [docs/business-rules.md](docs/business-rules.md). Precedence is `bao-cao.tex` (business rules) = `schema.dbml` (structure) > `docs/agent-guide.md` (conventions) > this handoff (history), per feedback §0.1.
 
@@ -138,11 +138,11 @@ The source design specifies PostgreSQL and provides the complete DBML in Section
 
 1. Add enum/check constraints for status, role, leave type, vehicle type, and adjustment type; current allowed values are recorded in DBML notes.
 2. `employment_history.source_request_id` is nullable and references `leave_requests`. Verify whether every status change requires a request or whether there are other administrative sources.
-3. `payrolls.policy_id` is unique and payroll rows snapshot pay components. Verify the intended business key and how recalculation history should work.
+3. **Resolved:** `payrolls.policy_id` is intentionally unique; policy must match driver and month, and draft payroll can be recalculated. See [business rules](docs/business-rules.md#cross-table-integrity-and-deletion) and [period lifecycle](docs/business-rules.md#six-step-period-lifecycle).
 4. `activity_sessions` currently has no uniqueness or interval-overlap constraint. Verify session rules.
 5. `driver_vehicles` has no unique key or interval-overlap constraint for vehicle/driver assignments. Verify assignment rules.
-6. `bookings.fare_amount` is nullable and has no currency field. Verify when a fare is set, currency, and fare-finalization rules.
-7. Account, driver, and customer deletion/archive rules are unspecified; FK delete behavior is not declared in the DBML.
+6. **Resolved (OWNER-APPROVED: Q5):** `fare_amount` is entered on completion. See [business rules](docs/business-rules.md#table-rules-17-tables) and [owner decisions](docs/business-rules.md#owner-decisions).
+7. **Resolved:** historical relationships use RESTRICT and profiles are soft-archived; archiving does not imply resignation. See [business rules](docs/business-rules.md#cross-table-integrity-and-deletion).
 8. Non-unique indexes, partitioning, concurrency/locking, and migration strategy are not described.
 
 There is no organization/tenant entity in the current ERD. KIRO must not treat multi-tenancy as a default requirement; first confirm whether the product serves one transport organization or multiple organizations.

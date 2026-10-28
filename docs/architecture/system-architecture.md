@@ -2,7 +2,9 @@
 
 Editable diagram: [driver-management-architecture.drawio](driver-management-architecture.drawio).
 
-This is the **target architecture**. The repository currently contains a directory scaffold; the services and integrations shown in the diagram have not yet been implemented.
+> **Roadmap, not part of MVP:** Kafka, MinIO, Trino and the associated analytics pipeline are future architecture. MVP monthly reports and payroll PDF reports read directly from PostgreSQL.
+
+The diagram depicts the target architecture; the event and analytics flows below are roadmap features.
 
 | Layer | Components | Responsibility |
 | --- | --- | --- |

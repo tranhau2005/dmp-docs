@@ -8,7 +8,7 @@ data model in `docs/schema.dbml`. The MVP is delivered as five independently shi
 (M1–M5 from `docs/agent-guide.md` §7). Work stops after M5 for human review.
 
 This document is authoritative together with `docs/schema.dbml` and `docs/agent-guide.md`. The existing
-`.kiro/specs/driver-management-dashboard` spec is **not** authoritative for this platform and must
+`.kiro/specs/_archived/driver-management-dashboard` spec is **not** authoritative for this platform and must
 not be used as a source of requirements.
 
 ### Scope
@@ -24,10 +24,7 @@ In scope (MVP):
 
 - Kafka, event-consumer, data-processing, and the analytics lakehouse (MinIO/Spark/Trino/Superset).
 - Multi-tenancy (the ERD has no tenant table; the system is single-organization).
-- Business rules marked `[NEEDS-OWNER]`: booking lifecycle & fare calculation, leave-approval
-  effects, timekeeping aggregation, payroll formula, report definitions, and any permission rule
-  beyond "ADMIN manages; DRIVER/CUSTOMER see their own". For tables in these areas, build storage/CRUD
-  only, stub the rules, and raise `NotImplementedError` with a `# NEEDS-OWNER:` comment.
+- Booking, leave, timekeeping, payroll and reporting lifecycle implementation is beyond M1–M5. Their rules and permission matrix are **Resolved by bao-cao.tex**; see [business rules](../../../docs/business-rules.md).
 
 ## Glossary
 
@@ -48,7 +45,7 @@ In scope (MVP):
 **User Story:** As a developer, I want a runnable skeleton, so that every later slice has a working baseline.
 
 #### Acceptance Criteria
-1. WHEN `docker compose up -d db` is run, THE system SHALL start PostgreSQL 16 reachable on localhost:5432.
+1. WHEN `docker compose up -d db` is run, THE system SHALL start PostgreSQL 16 reachable on localhost:5433.
 2. WHEN the API receives `GET /health`, THE API SHALL respond with HTTP 200 and body `{"status":"ok"}`.
 3. WHEN `uv run pytest` is run from the `dmp-api` repository root, THE suite SHALL execute at least one test and pass.
 4. THE API SHALL read `DATABASE_URL` from the environment and SHALL NOT hardcode credentials.
@@ -66,7 +63,7 @@ In scope (MVP):
 6. THE migration SHALL declare FK delete behavior as `ON DELETE RESTRICT` and SHALL provide soft-archive via `archived_at` on `drivers`/`customers` (no hard-delete of PII).
 7. WHEN a round-trip test inserts and reads one `account` and one `driver`, THE test SHALL succeed.
 8. IF data violating any added constraint is inserted, THEN the database SHALL reject it, and a test SHALL prove the rejection.
-9. THE `payrolls.policy_id` 1:1 ambiguity SHALL be preserved as-is and flagged `[NEEDS-OWNER]`; it SHALL NOT be silently changed.
+9. THE database SHALL match the policy to the payroll driver through a composite FK `(policy_id, driver_id)` referencing `income_policies(id, driver_id)`, and SHALL use a BEFORE INSERT OR UPDATE trigger to require the policy month to match the payroll period month. `UNIQUE(policy_id)` is intentional and SHALL remain. **Resolved by bao-cao.tex**; delivered by DB-02 ([dmp-api #10](https://github.com/tranhau2005/dmp-api/pull/10)). See [business rules](../../../docs/business-rules.md#cross-table-integrity-and-deletion).
 
 ### Requirement 3: Accounts and authentication (M3)
 

@@ -22,7 +22,7 @@
 | Container | Docker + docker-compose | latest | dev Postgres via compose |
 
 **Deferred (target architecture only):** Kafka, Spark/PySpark, MinIO (Bronze/Silver/Gold), Trino, Superset.
-Do not add Kafka until a `[NEEDS-OWNER]` async use case is confirmed (D-04).
+Add Kafka only after an async use case is confirmed (D-04).
 
 ## Backend rules (strict)
 
@@ -47,15 +47,13 @@ Add these as Alembic migrations with constraint SQL, since the raw DBML lacks th
 3. Enum/CHECK constraints for every status/role/type column, using the allowed values in the DBML notes.
 4. `*.month` columns: CHECK `date_trunc('month', month) = month`.
 5. FK delete behavior: `ON DELETE RESTRICT` everywhere + soft-archive via `archived_at` on `drivers`/`customers`.
-   Do not hard-delete PII. (ASSUMPTION — confirm)
+   Do not hard-delete PII. Resolved by bao-cao.tex; see [business rules](../../docs/business-rules.md#cross-table-integrity-and-deletion).
 
-**FLAG (do not silently fix):** `payrolls.policy_id` is UNIQUE and 1:1 to `income_policies`, while `income_policies`
-is keyed `(driver_id, month)` and `payrolls` by `(period_id, driver_id)`. If a payroll period's month can differ
-from the policy month, this 1:1 is ambiguous → `[NEEDS-OWNER]`.
+**Resolved by bao-cao.tex:** `UNIQUE(policy_id)` is intentional; use a composite FK to match the driver and a trigger to match the policy and period month. See [business rules](../../docs/business-rules.md#cross-table-integrity-and-deletion).
 
 ## Config & secrets
 
-- `DATABASE_URL` from env; dev default: `postgresql+psycopg://postgres:postgres@localhost:5432/dmp`.
+- `DATABASE_URL` from env; dev default: `postgresql+psycopg://postgres:postgres@localhost:5433/dmp`. Compose host port defaults to 5433 via `DMP_DB_PORT`; update `DATABASE_URL` when overriding it.
 - Never hardcode secrets; honor `.gitignore` (`.env`, `*.pem/key`, `credentials/`, etc.).
 
 ## Standard commands (docs/agent-guide.md §4)
