@@ -21,4 +21,4 @@ This repo (dmp-docs) holds the Kiro specifications, architecture, schema, and sh
 
 ## Agent roles (Orca)
 
-The orchestrator session runs `claude-opus-5-5`. Dispatch implementation to Codex workers (`--agent codex --model gpt-6.1-terra --effort xhigh`) and review finished work with `kiro-cli --model auto`; all three run in auto mode. Commands and rules are in [AGENTS.md](AGENTS.md#agent-roles-orca). Auto mode does not grant permission to merge, deploy, or publish.
+The orchestrator session runs `claude-opus-5-5`. Dispatch implementation and review to Codex workers (`--agent codex --model gpt-6.1-terra --effort xhigh`), including workers in sibling repositories; all three run in auto mode. Commands and rules are in [AGENTS.md](AGENTS.md#agent-roles-orca). Auto mode does not grant permission to merge, deploy, or publish.
