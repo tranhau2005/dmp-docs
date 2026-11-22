@@ -42,7 +42,7 @@ Principles (from steering `tech.md` / `structure.md`):
 |---|---|---|
 | `accounts` (auth) | accounts | login, me, account CRUD (ADMIN), role/link CHECK |
 | `areas` | areas | simple catalog CRUD (supports driver area filter) |
-| `drivers` | drivers, employment_history, driver_licenses | driver CRUD, license CRUD, status-change history, overlap rejection, soft-archive |
+| `drivers` | drivers, employment_history, driver_licenses, driver_pii_audits | driver CRUD, license CRUD, status-change history, overlap rejection, soft-archive, PII audit |
 | `vehicles` | vehicles, driver_vehicles | vehicle CRUD, assignment with non-overlapping intervals |
 
 ### Domains (storage-only / stubbed in MVP)
@@ -60,7 +60,7 @@ payroll_adjustments): models + migration in M1–M5; later lifecycle work follow
 
 ## Data Models
 
-Authoritative source: `docs/schema.dbml` (identical to handoff Section 14), 17 tables, every table
+Authoritative source: `docs/schema.dbml` (identical to handoff Section 14), 18 tables, every table
 with a `bigint` identity PK. Uniqueness and keys preserved exactly:
 `accounts.username`, `drivers.driver_code`, `drivers.citizen_id`, `driver_licenses.license_number`,
 `vehicles.plate_number`, `bookings.booking_code`, `customers.phone`, `activity_sessions.source_key`;

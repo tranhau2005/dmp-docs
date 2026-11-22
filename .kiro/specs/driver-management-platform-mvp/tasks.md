@@ -21,7 +21,7 @@ Build the MVP in order (M1 → M5). Each slice is independently shippable and te
 
 ### M2 — Database schema + migrations + integrity
 
-- [ ] 2.1 Translate all 17 tables from `docs/schema.dbml` into SQLAlchemy 2.x typed models under each domain's `models.py`.
+- [ ] 2.1 Translate all 18 tables from `docs/schema.dbml` into SQLAlchemy 2.x typed models under each domain's `models.py`.
   - _Requirements: 2.1_
 - [ ] 2.2 Generate the initial Alembic migration creating every table, PK, unique constraint, and FK (`ON DELETE RESTRICT`).
   - _Requirements: 2.1, 2.6_
