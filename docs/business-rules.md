@@ -20,7 +20,7 @@
 
 The server checks the active account, role, and record scope for each operation. Drivers cannot change `driver_id` to access another driver's records; customers can only view their own bookings. No one may approve their own leave request. Driver-editable fields exclude driver code, employment status, and role. On account lock, revoke existing sessions or re-check authorization on the next request. Passwords are stored only as hashes; CCCD and salary data are returned only to authorized users. [Source: report, §2.4, “Ma trận quyền nghiệp vụ”; §3.6.4.]
 
-## Table rules (17 tables)
+## Table rules (18 tables)
 
 1. **`accounts`** — DRIVER accounts require `driver_id`; CUSTOMER accounts require `customer_id`; ADMIN accounts link to neither. A CHECK ensures the account links only to the profile matching its role. Customers need a CUSTOMER account to create and track bookings; ADMIN may enter a booking for a customer. Account lock status is independent of employment status. At a future RESIGN effective time, reject login and refresh when RESIGNED is effective and run a daily job to close `driver_vehicles` assignments (OWNER-APPROVED: Q6). [Source: report, §3.3, table `accounts`; §3.6.3; OWNER-APPROVED: Q6.]
 2. **`areas`** — A driver's area reflects the current assignment. Historical area reporting is outside the design. [Source: report, §3.3, table `areas`.]
@@ -39,6 +39,7 @@ The server checks the active account, role, and record scope for each operation.
 15. **`payroll_periods`** — One period per month; month is day 1. DRAFT has no finalizer/time; FINALIZED requires both. Finalize the whole period in one transaction after validating data and all payroll rows for drivers with activity in the period. [Source: report, §3.3, table `payroll_periods`; §3.7.3.]
 16. **`payrolls`** — Unique per `(period_id, driver_id)` and `policy_id`; policy must match both driver and period month, and each policy attaches to at most one payroll. `trip_amount = completed_bookings × trip_rate`; counts and components are nonnegative; net follows the formula below. Do not finalize if `net_amount < 0`; resolve the data rather than clamp to zero. After finalization, payroll and source data affecting it cannot be changed. [Source: report, §3.3, table `payrolls`; §3.6.2–§3.7.3.]
 17. **`payroll_adjustments`** — `amount > 0`; type determines whether it adds or subtracts. Payroll component totals equal the sums of detail rows by type and are recalculated transactionally before finalization. Do not apply the details a second time when printing. [Source: report, §3.3, table `payroll_adjustments`; §3.7.2–§3.7.3.]
+18. **`driver_pii_audits`** — Profile reads and updates of driver PII are audited with actor, driver, action (READ or UPDATE), field names only, and UTC time. Only ADMIN may query the audit log. Retention and value masking are open owner decisions; the temporary assumption is to retain records indefinitely and store field names only, never values. [Source: owner decision 2026-11-22; dmp-api PR #35.]
 
 ### Cross-table integrity and deletion
 

@@ -15,7 +15,7 @@ not be used as a source of requirements.
 
 In scope (MVP):
 - M1 — Project scaffold + health check.
-- M2 — Database schema + migrations + integrity constraints (all 17 tables).
+- M2 — Database schema + migrations + integrity constraints (all 18 tables).
 - M3 — Accounts + authentication (JWT, roles).
 - M4 — Drivers + licenses + employment history.
 - M5 — Vehicles + driver–vehicle assignment.
@@ -55,7 +55,7 @@ In scope (MVP):
 **User Story:** As a developer, I want the full schema with integrity constraints, so that invalid data is rejected at the database.
 
 #### Acceptance Criteria
-1. WHEN `uv run alembic upgrade head` is run, THE migration SHALL create all 17 tables defined in `docs/schema.dbml` with the PK/unique constraints and foreign keys specified there.
+1. WHEN `uv run alembic upgrade head` is run, THE migration SHALL create all 18 tables defined in `docs/schema.dbml` with the PK/unique constraints and foreign keys specified there.
 2. THE migration SHALL add enum/CHECK constraints for every status/role/type column using the allowed values in the DBML notes (account role/status, employment status, booking status, leave type/status/action, vehicle type, adjustment type).
 3. THE migration SHALL add a CHECK on `accounts` so that `driver_id` and `customer_id` are not both set and the set link matches `role` (DRIVER→driver_id, CUSTOMER→customer_id, ADMIN→neither).
 4. THE migration SHALL add a CHECK `date_trunc('month', month) = month` on `income_policies.month` and `payroll_periods.month`.
